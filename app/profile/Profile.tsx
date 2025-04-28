@@ -66,16 +66,16 @@ const Profile = () => {
       <ScrollView>
         <View className="flex gap-10 px-4 py-4">
           <Header title="Profile" icon={MoveLeft} />
-          
+
           {/* Profile Section */}
           <View className="bg-secondary/10 p-4 rounded-lg">
-            <View className="flex-row items-center space-x-6">
+            <View className="flex-row items-center">
               <View className="h-20 w-20 rounded-full bg-secondary flex items-center justify-center">
                 <Text className="text-primary text-2xl font-bold">
                   {user?.username ? user.username.charAt(0).toUpperCase() : "U"}
                 </Text>
               </View>
-              <View>
+              <View className="ml-4">
                 <Text className="text-secondary text-xl font-bold">
                   {user?.username || "Loading..."}
                 </Text>
@@ -111,9 +111,17 @@ const Profile = () => {
 
           {/* Friends Section */}
           <View>
-            <Text className="text-secondary text-xl font-bold mb-4">
-              Friends ({friends.length})
-            </Text>
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-secondary text-xl font-bold">
+                Friends ({friends.length})
+              </Text>
+              <TouchableOpacity 
+                className="bg-primary px-3 py-1 rounded"
+                onPress={() => router.push("/friends/Friends")}
+              >
+                <Text className="text-white font-medium">View All</Text>
+              </TouchableOpacity>
+            </View>
             {isLoading ? (
               <ActivityIndicator color="#c1c1c1" />
             ) : error ? (
@@ -122,33 +130,40 @@ const Profile = () => {
               <Text className="text-secondary/70">You don't have any friends yet.</Text>
             ) : (
               <View className="flex-row flex-wrap">
-                {friends.map((friend) => (
+                {friends.slice(0, 4).map((friend) => (
                   <View
                     key={friend.id}
                     className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4 mr-[4%]"
                   >
-                    <View className="flex-row items-center space-x-2">
+                    <View className="flex-row items-center space-x-6">
                       <View className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center">
                         <Text className="text-primary text-sm font-bold">
                           {friend.friendUsername.charAt(0).toUpperCase()}
                         </Text>
                       </View>
-                      <Text className="text-secondary font-medium">
+                      <Text className="text-secondary font-medium ml-2">
                         {friend.friendUsername}
                       </Text>
                     </View>
                   </View>
                 ))}
+                {friends.length > 4 && (
+                  <View className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4 mr-[4%] items-center justify-center">
+                    <Text className="text-secondary/70">
+                      +{friends.length - 4} more
+                    </Text>
+                  </View>
+                )}
               </View>
             )}
           </View>
 
           {/* Logout Button */}
           <TouchableOpacity
-            className="bg-red-500 p-4 rounded-lg"
+            className="bg-red-400/15 p-4 rounded-lg"
             onPress={handleLogout}
           >
-            <Text className="text-white text-center font-semibold">Logout</Text>
+            <Text className="text-red-400/60 text-center font-semibold">Logout</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

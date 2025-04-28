@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, TextInput, Platform } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, TextInput, Platform, Alert } from 'react-native';
 import { X, Calendar, Clock } from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -25,7 +25,45 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({ visible, onClose, onS
   const [selectedStartTime, setSelectedStartTime] = useState(new Date());
   const [selectedEndTime, setSelectedEndTime] = useState(new Date());
 
+  const validateForm = () => {
+    if (!title.trim()) {
+      Alert.alert('Fehler', 'Bitte gebe einen Titel ein.');
+      return false;
+    }
+    if (!date) {
+      Alert.alert('Fehler', 'Bitte wähle ein Datum aus.');
+      return false;
+    }
+    if (!startTime) {
+      Alert.alert('Fehler', 'Bitte wähle eine Startzeit aus.');
+      return false;
+    }
+    if (!endTime) {
+      Alert.alert('Fehler', 'Bitte wähle eine Endzeit aus.');
+      return false;
+    }
+    
+    // Check if end time is after start time
+    const startParts = startTime.split(':');
+    const endParts = endTime.split(':');
+    
+    const startDate = new Date();
+    startDate.setHours(parseInt(startParts[0]), parseInt(startParts[1]));
+    
+    const endDate = new Date();
+    endDate.setHours(parseInt(endParts[0]), parseInt(endParts[1]));
+    
+    if (endDate <= startDate) {
+      Alert.alert('Fehler', 'Die Endzeit muss nach der Startzeit liegen.');
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSave = () => {
+    if (!validateForm()) return;
+    
     onSave({ title, date, startTime, endTime });
     // Reset form
     setTitle('');
@@ -59,6 +97,7 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({ visible, onClose, onS
     setShowEndTimePicker(false);
     if (selectedTime) {
       setSelectedEndTime(selectedTime);
+      // Format time as HH:MM
       const hours = selectedTime.getHours().toString().padStart(2, '0');
       const minutes = selectedTime.getMinutes().toString().padStart(2, '0');
       setEndTime(`${hours}:${minutes}`);
@@ -84,10 +123,10 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({ visible, onClose, onS
           <View className="mb-4">
             <Text className="mb-1 text-primary">Titel</Text>
             <TextInput
-              className="border border-gray-300 rounded-md p-3 text-primary"
+              className="border border-gray-300 rounded-md p-3 text-secondary"
               value={title}
               onChangeText={setTitle}
-              placeholder="Task"
+              placeholder="Aktivitätstitel"
               placeholderTextColor="#c1c1c1"
             />
           </View>

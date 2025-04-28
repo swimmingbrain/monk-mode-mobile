@@ -7,7 +7,7 @@ import CurrentFocusTime from "@/components/CurrentFocusTime";
 import TaskList from "@/components/TaskList";
 import { House } from "lucide-react-native";
 
-const index = () => {
+export default function Index() {
   return (
     <View className="bg-black h-full py-10">
       <ScrollView>
@@ -21,6 +21,4 @@ const index = () => {
       </ScrollView>
     </View>
   );
-};
-
-export default index;
+}

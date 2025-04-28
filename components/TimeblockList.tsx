@@ -1,9 +1,10 @@
 import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react-native";
+import { ChevronLeft, ChevronRight, Plus, Trash2, Pencil } from "lucide-react-native";
 import { getTimeBlocks } from "@/services/TimeblockService";
 import { TimeBlock } from "@/types/types";
 import TimeblockDialog from "./TimeblockDialog";
+
 // Einfache Funktion zur Generierung einer zufälligen ID
 const generateId = () => {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -15,6 +16,7 @@ const TimeblockList = () => {
   const [error, setError] = useState<string | null>(null);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [editingTimeBlock, setEditingTimeBlock] = useState<TimeBlock | null>(null);
 
   useEffect(() => {
     fetchTimeBlocks();
@@ -44,16 +46,28 @@ const TimeblockList = () => {
   };
 
   const handleSaveTimeblock = (timeblock: { title: string; date: string; startTime: string; endTime: string }) => {
-    // Create a new time block with a unique ID
-    const newTimeBlock = {
-      id: generateId(),
-      ...timeblock,
-      isFocus: false,
-      tasks: []
-    };
-    
-    // Add the new time block to the list
-    setTimeBlocks(prevBlocks => [...prevBlocks, newTimeBlock]);
+    if (editingTimeBlock) {
+      // Update existing time block
+      setTimeBlocks(prevBlocks => 
+        prevBlocks.map(block => 
+          block.id === editingTimeBlock.id 
+            ? { ...block, ...timeblock } 
+            : block
+        )
+      );
+      setEditingTimeBlock(null);
+    } else {
+      // Create a new time block with a unique ID
+      const newTimeBlock = {
+        id: generateId(),
+        ...timeblock,
+        isFocus: false,
+        tasks: []
+      };
+      
+      // Add the new time block to the list
+      setTimeBlocks(prevBlocks => [...prevBlocks, newTimeBlock]);
+    }
     
     // Close the dialog
     setDialogVisible(false);
@@ -79,6 +93,11 @@ const TimeblockList = () => {
 
   const handleDeleteTimeBlock = (id: string) => {
     setTimeBlocks(prevBlocks => prevBlocks.filter(block => block.id !== id));
+  };
+
+  const handleEditTimeBlock = (timeBlock: TimeBlock) => {
+    setEditingTimeBlock(timeBlock);
+    setDialogVisible(true);
   };
 
   const navigateToPreviousDay = () => {
@@ -134,12 +153,20 @@ const TimeblockList = () => {
                   {timeBlock.startTime} - {timeBlock.endTime}
                 </Text>
               </View>
-              <TouchableOpacity 
-                onPress={() => timeBlock.id && confirmDeleteTimeBlock(timeBlock.id, timeBlock.title)}
-                className="p-2"
-              >
-                <Trash2 color="#c1c1c1" size={20} />
-              </TouchableOpacity>
+              <View className="flex-row">
+                <TouchableOpacity 
+                  onPress={() => handleEditTimeBlock(timeBlock)}
+                  className="p-2"
+                >
+                  <Pencil color="#c1c1c1" size={20} />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={() => timeBlock.id && confirmDeleteTimeBlock(timeBlock.id, timeBlock.title)}
+                  className="p-2"
+                >
+                  <Trash2 color="#c1c1c1" size={20} />
+                </TouchableOpacity>
+              </View>
             </View>
           ))}
         </ScrollView>
@@ -147,7 +174,10 @@ const TimeblockList = () => {
       
       <TouchableOpacity 
         className="flex flex-row items-center justify-end gap-2"
-        onPress={() => setDialogVisible(true)}
+        onPress={() => {
+          setEditingTimeBlock(null);
+          setDialogVisible(true);
+        }}
       >
         <Plus color="#c1c1c1" size={20} />
         <Text className="text-secondary">Aktivität hinzufügen</Text>
@@ -155,8 +185,12 @@ const TimeblockList = () => {
 
       <TimeblockDialog 
         visible={dialogVisible}
-        onClose={() => setDialogVisible(false)}
+        onClose={() => {
+          setDialogVisible(false);
+          setEditingTimeBlock(null);
+        }}
         onSave={handleSaveTimeblock}
+        timeBlock={editingTimeBlock}
       />
     </View>
   );

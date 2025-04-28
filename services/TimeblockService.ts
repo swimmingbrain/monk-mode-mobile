@@ -9,7 +9,6 @@ export async function getTimeBlocks(token: string): Promise<TimeBlock[]> {
     });
 
     if (!response.ok) {
-      console.log("response", response);
       const errorData = await response.text();
       const parsedError = JSON.parse(errorData) as ErrorResponse;
       throw new Error(parsedError.message);

@@ -1,18 +1,33 @@
-import { Stack, useRouter } from "expo-router";
+import { Stack, useRouter, Slot } from "expo-router";
 import "./globals.css";
-import { useEffect } from "react";
-
-// TODO: Replace with actual auth check
-const isAuthenticated = false;
+import { useEffect, useState } from "react";
+import { getToken } from "@/services/auth";
 
 export default function RootLayout() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace("/(auth)/login");
-    }
+    const checkAuth = async () => {
+      try {
+        const token = await getToken();
+        if (!token) {
+          router.replace("/(auth)/login");
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+        router.replace("/(auth)/login");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
+
+  if (isLoading) {
+    return <Slot />;
+  }
 
   return (
     <Stack>

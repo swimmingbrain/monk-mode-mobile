@@ -1,19 +1,62 @@
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
-import { router, useRouter } from "expo-router";
+import { router } from "expo-router";
 import { useState } from "react";
+import { register } from "@/services/auth";
 
 export default function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const router = useRouter();
+  const validateForm = () => {
+    if (!username.trim()) {
+      setError("Username is required");
+      return false;
+    }
+    if (!email.trim()) {
+      setError("Email is required");
+      return false;
+    }
+    if (!password.trim()) {
+      setError("Password is required");
+      return false;
+    }
+    if (!confirmPassword.trim()) {
+      setError("Please confirm your password");
+      return false;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return false;
+    }
+    return true;
+  };
 
-  const handleRegister = () => {
-    // TODO: Implement register logic
-    console.log("Register attempt with:", username, email, password);
-    router.push("/(auth)/login");
+  const handleRegister = async () => {
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      const response = await register({ username, email, password });
+      if (response.token) {
+        router.push("/(auth)/login");
+      } else {
+        setError("Registration failed");
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An error occurred during registration"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -23,12 +66,19 @@ export default function Register() {
       </Text>
 
       <View className="flex flex-col gap-4">
+        {error ? (
+          <Text className="text-red-500 text-center">{error}</Text>
+        ) : null}
+
         <TextInput
           className="border border-secondary rounded-lg p-4 text-secondary"
           placeholder="Username"
           placeholderTextColor="#c1c1c1"
           value={username}
-          onChangeText={setUsername}
+          onChangeText={(text) => {
+            setUsername(text);
+            setError("");
+          }}
           autoCapitalize="none"
         />
 
@@ -37,7 +87,10 @@ export default function Register() {
           placeholder="Email"
           placeholderTextColor="#c1c1c1"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(text) => {
+            setEmail(text);
+            setError("");
+          }}
           keyboardType="email-address"
           autoCapitalize="none"
         />
@@ -47,7 +100,10 @@ export default function Register() {
           placeholder="Password"
           placeholderTextColor="#c1c1c1"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={(text) => {
+            setPassword(text);
+            setError("");
+          }}
           secureTextEntry
         />
 
@@ -56,16 +112,22 @@ export default function Register() {
           placeholder="Confirm Password"
           placeholderTextColor="#c1c1c1"
           value={confirmPassword}
-          onChangeText={setConfirmPassword}
+          onChangeText={(text) => {
+            setConfirmPassword(text);
+            setError("");
+          }}
           secureTextEntry
         />
 
         <TouchableOpacity
-          className="bg-secondary p-4 rounded-lg"
+          className={`p-4 rounded-lg ${
+            isSubmitting ? "bg-gray-500" : "bg-secondary"
+          }`}
           onPress={handleRegister}
+          disabled={isSubmitting}
         >
           <Text className="text-primary text-center font-semibold">
-            Register
+            {isSubmitting ? "Registering..." : "Register"}
           </Text>
         </TouchableOpacity>
 

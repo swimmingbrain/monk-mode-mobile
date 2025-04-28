@@ -1,17 +1,50 @@
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { useState } from "react";
+import { login, saveToken } from "@/services/auth";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = () => {
-    // TODO: Implement actual login logic
-    console.log("Login attempt with:", username, password);
+  const validateForm = () => {
+    if (!username.trim()) {
+      setError("Username is required");
+      return false;
+    }
+    if (!password.trim()) {
+      setError("Password is required");
+      return false;
+    }
+    return true;
+  };
 
-    // For now, just redirect to dashboard
-    router.replace("/");
+  const handleLogin = async () => {
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      const response = await login({ username, password });
+
+      if (response.token) {
+        // Save the JWT token
+        await saveToken(response.token);
+        // Redirect to dashboard
+        router.replace("/");
+      } else {
+        setError("Login failed");
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An error occurred during login"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -21,12 +54,20 @@ export default function Login() {
       </Text>
 
       <View className="flex flex-col gap-4">
+        {error ? (
+          <Text className="text-red-500 text-center">{error}</Text>
+        ) : null}
+
         <TextInput
           className="border border-secondary rounded-lg p-4 text-secondary"
           placeholder="Username"
           placeholderTextColor="#c1c1c1"
           value={username}
-          onChangeText={setUsername}
+          onChangeText={(text) => {
+            setUsername(text);
+            setError("");
+          }}
+          autoCapitalize="none"
         />
 
         <TextInput
@@ -34,15 +75,23 @@ export default function Login() {
           placeholder="Password"
           placeholderTextColor="#c1c1c1"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={(text) => {
+            setPassword(text);
+            setError("");
+          }}
           secureTextEntry
         />
 
         <TouchableOpacity
-          className="bg-secondary p-4 rounded-lg"
+          className={`p-4 rounded-lg ${
+            isSubmitting ? "bg-gray-500" : "bg-secondary"
+          }`}
           onPress={handleLogin}
+          disabled={isSubmitting}
         >
-          <Text className="text-primary text-center font-semibold">Login</Text>
+          <Text className="text-primary text-center font-semibold">
+            {isSubmitting ? "Logging in..." : "Login"}
+          </Text>
         </TouchableOpacity>
 
         <View className="flex-row justify-center mt-4">

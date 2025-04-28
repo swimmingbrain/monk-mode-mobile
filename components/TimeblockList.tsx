@@ -15,18 +15,17 @@ const TimeblockList = () => {
 
   const fetchTimeBlocks = async () => {
     try {
-      console.log("fetch timeblocks ...");
       const token = "tbd";
       if (!token) throw new Error("No authentication token found.");
 
-      const data = await getTimeBlocks(token);
+      /*const data = await getTimeBlocks(token);
 
       const sortedData = data.sort(
         (a: TimeBlock, b: TimeBlock) =>
           new Date(a.date).getTime() - new Date(b.date).getTime()
       );
 
-      setTimeBlocks(sortedData);
+      setTimeBlocks(sortedData);*/
     } catch (err) {
       console.log(err);
       setError(

@@ -1,7 +1,7 @@
 export const API_CONFIG = {
-  BASE_URL: "https://localhost:7133",
+  BASE_URL: "http://192.168.161.54:5139",
   headers: {
-    Authorization: `Bearer`,
+    //Authorization: `Bearer`,
     accept: "application/json",
   },
 };

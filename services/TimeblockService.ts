@@ -1,4 +1,4 @@
-import { ErrorResponse, TimeBlock } from "@/types/types";
+import { ApiResponse, TimeBlock } from "@/types/types";
 import { API_CONFIG } from "./ApiConfig";
 
 export async function getTimeBlocks(token: string): Promise<TimeBlock[]> {
@@ -10,7 +10,7 @@ export async function getTimeBlocks(token: string): Promise<TimeBlock[]> {
 
     if (!response.ok) {
       const errorData = await response.text();
-      const parsedError = JSON.parse(errorData) as ErrorResponse;
+      const parsedError = JSON.parse(errorData) as ApiResponse;
       throw new Error(parsedError.message);
     }
 

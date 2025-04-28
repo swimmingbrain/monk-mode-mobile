@@ -43,10 +43,11 @@ export default function Register() {
 
     try {
       const response = await register({ username, email, password });
-      if (response.token) {
-        router.push("/(auth)/login");
+      console.log(response.status);
+      if (response.status.toLocaleLowerCase() === "success") {
+        router.replace("/(auth)/login");
       } else {
-        setError("Registration failed");
+        setError(response.message || "Registration failed");
       }
     } catch (err) {
       setError(

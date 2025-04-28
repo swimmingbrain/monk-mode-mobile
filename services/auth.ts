@@ -1,9 +1,9 @@
 import * as SecureStore from "expo-secure-store";
 import {
   RegisterRequest,
-  ErrorResponse,
   LoginRequest,
   LoginResponse,
+  ApiResponse,
 } from "@/types/types";
 import { API_CONFIG } from "./ApiConfig";
 
@@ -54,7 +54,7 @@ export async function login(credentials: LoginRequest): Promise<LoginResponse> {
 
     if (!response.ok) {
       const errorData = await response.text();
-      const parsedError = JSON.parse(errorData) as ErrorResponse;
+      const parsedError = JSON.parse(errorData) as ApiResponse;
       throw new Error(parsedError.message);
     }
 
@@ -65,7 +65,7 @@ export async function login(credentials: LoginRequest): Promise<LoginResponse> {
   }
 }
 
-export async function register(data: RegisterRequest): Promise<LoginResponse> {
+export async function register(data: RegisterRequest): Promise<ApiResponse> {
   try {
     const response = await fetch(
       `${API_CONFIG.BASE_URL}/api/Authenticate/register`,
@@ -81,7 +81,7 @@ export async function register(data: RegisterRequest): Promise<LoginResponse> {
 
     if (!response.ok) {
       const errorData = await response.text();
-      const parsedError = JSON.parse(errorData) as ErrorResponse;
+      const parsedError = JSON.parse(errorData) as ApiResponse;
       throw new Error(parsedError.message);
     }
 

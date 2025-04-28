@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Animated } from "react-native";
+import { View, Text, TouchableOpacity, Animated, Platform } from "react-native";
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import SafeAreaWrapper from "@/components/SafeAreaWrapper";
@@ -6,6 +6,7 @@ import { useFocusLockDetector } from "@/hooks/useFocusLockDetector";
 import { AppState } from "react-native";
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 // Define a background task name
 const BACKGROUND_TIMER_TASK = 'BACKGROUND_TIMER_TASK';
@@ -33,6 +34,8 @@ const FocusMode = () => {
   const lastActiveTimeRef = useRef<number>(Date.now());
   const hasStartedRef = useRef<boolean>(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const isAndroid = Platform.OS === 'android';
+  const lastStateChangeTime = useRef<number>(Date.now());
 
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
@@ -113,6 +116,19 @@ const FocusMode = () => {
     };
   }, []);
 
+  // Lock screen orientation to portrait on Android
+  useEffect(() => {
+    if (isAndroid) {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    }
+    
+    return () => {
+      if (isAndroid) {
+        ScreenOrientation.unlockAsync();
+      }
+    };
+  }, []);
+
   // Initialize timer when component mounts
   useEffect(() => {
     console.log("Component mounted, starting timer");
@@ -130,6 +146,10 @@ const FocusMode = () => {
   // Handle focus state changes
   useEffect(() => {
     console.log("Focus state changed:", { screenLocked, appSwitchDetected, isRunning });
+    
+    const now = Date.now();
+    const timeSinceLastStateChange = now - lastStateChangeTime.current;
+    lastStateChangeTime.current = now;
     
     if (screenLocked) {
       console.log("Screen is locked - user is still focusing");
@@ -152,27 +172,40 @@ const FocusMode = () => {
         to: nextAppState, 
         screenLocked, 
         appSwitchDetected,
-        isRunning
+        isRunning,
+        platform: Platform.OS
       });
+      
+      const now = Date.now();
+      const timeSinceLastStateChange = now - lastStateChangeTime.current;
       
       if (lastAppStateRef.current.match(/inactive|background/) && nextAppState === 'active') {
         // App came back to foreground
-        const now = Date.now();
         const timeDiff = Math.floor((now - lastActiveTimeRef.current) / 1000);
         
-        if (appSwitchDetected) {
+        // For Android, if the time since last state change is very short (less than 1 second),
+        // it's likely a screen lock rather than an app switch
+        if (isAndroid && timeSinceLastStateChange < 1000 && !appSwitchDetected) {
+          console.log("Android quick return detected, assuming screen lock");
+          showWelcomeMessage("Welcome back! Timer was counting while your phone was asleep!");
+          // Add the time that passed while the app was in background
+          setTimer(prev => prev + timeDiff);
+          startTimer();
+        } else if (appSwitchDetected) {
           showWelcomeMessage("Welcome back! Timer was stopped while you lost focus!");
           // Restore the last timer value when coming back from app switch
           setTimer(lastTimeRef.current);
+          startTimer();
         } else if (screenLocked) {
           showWelcomeMessage("Welcome back! Timer was counting while your phone was asleep!");
           // Add the time that passed while the app was in background
           setTimer(prev => prev + timeDiff);
+          startTimer();
+        } else {
+          // Always start the timer when coming back to foreground
+          console.log("App came back to foreground, starting timer");
+          startTimer();
         }
-        
-        // Always start the timer when coming back to foreground
-        console.log("App came back to foreground, starting timer");
-        startTimer();
       } else if (lastAppStateRef.current === 'active' && nextAppState.match(/inactive|background/)) {
         // App going to background
         lastActiveTimeRef.current = Date.now();
@@ -180,10 +213,16 @@ const FocusMode = () => {
         if (screenLocked) {
           // Keep the timer running in the background when screen is locked
           // We'll update the timer when the app comes back to foreground
+          console.log("Screen locked, keeping timer running");
         } else if (appSwitchDetected) {
           // Save the current timer value when switching apps
           lastTimeRef.current = timer;
           stopTimer();
+          console.log("App switch detected, stopping timer");
+        } else if (isAndroid) {
+          // On Android, assume it's a screen lock by default
+          console.log("Android background, assuming screen lock");
+          // Keep the timer running
         }
       }
       

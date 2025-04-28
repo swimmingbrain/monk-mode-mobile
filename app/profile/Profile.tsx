@@ -7,6 +7,7 @@ import { removeToken } from "@/services/auth";
 import { getUserProfile } from "@/services/profile";
 import { getFriends } from "@/services/friends";
 import { UserProfile, Friendship } from "@/types/types";
+import SafeAreaWrapper from "@/components/SafeAreaWrapper";
 
 const Profile = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -29,12 +30,18 @@ const Profile = () => {
     
     const loadFriends = async () => {
       try {
+        setIsLoading(true);
+        setError("");
+        console.log("Starting to load friends...");
         const loadedFriends = await getFriends();
+        console.log(`Successfully loaded ${loadedFriends.length} friends`);
         setFriends(loadedFriends);
       } catch (err) {
         console.error("Error loading friends:", err);
         if (err instanceof Error) {
-          setError(err.message);
+          setError(`Failed to load friends: ${err.message}`);
+        } else {
+          setError("Failed to load friends: Unknown error");
         }
       } finally {
         setIsLoading(false);
@@ -55,14 +62,14 @@ const Profile = () => {
   };
 
   return (
-    <View className="flex-1 bg-primary">
-      <ScrollView className="flex-1">
-        <View className="p-4">
+    <SafeAreaWrapper className="bg-black">
+      <ScrollView>
+        <View className="flex gap-10 px-4 py-4">
           <Header title="Profile" icon={MoveLeft} />
           
           {/* Profile Section */}
-          <View className="mt-6 bg-secondary/10 p-4 rounded-lg">
-            <View className="flex-row items-center space-x-4">
+          <View className="bg-secondary/10 p-4 rounded-lg">
+            <View className="flex-row items-center space-x-6">
               <View className="h-20 w-20 rounded-full bg-secondary flex items-center justify-center">
                 <Text className="text-primary text-2xl font-bold">
                   {user?.username ? user.username.charAt(0).toUpperCase() : "U"}
@@ -80,7 +87,7 @@ const Profile = () => {
           </View>
 
           {/* Statistics Section */}
-          <View className="mt-6">
+          <View>
             <Text className="text-secondary text-xl font-bold mb-4">Focus Statistics</Text>
             <View className="flex-row flex-wrap justify-between">
               <View className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4">
@@ -103,7 +110,7 @@ const Profile = () => {
           </View>
 
           {/* Friends Section */}
-          <View className="mt-6 mb-6">
+          <View>
             <Text className="text-secondary text-xl font-bold mb-4">
               Friends ({friends.length})
             </Text>
@@ -138,14 +145,14 @@ const Profile = () => {
 
           {/* Logout Button */}
           <TouchableOpacity
-            className="bg-red-500 p-4 rounded-lg mb-6"
+            className="bg-red-500 p-4 rounded-lg"
             onPress={handleLogout}
           >
             <Text className="text-white text-center font-semibold">Logout</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaWrapper>
   );
 };
 

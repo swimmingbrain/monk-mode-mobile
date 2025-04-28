@@ -1,8 +1,42 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react-native";
+import { getTimeBlocks } from "@/services/TimeblockService";
+import { TimeBlock } from "@/types/types";
 
 const TimeblockList = () => {
+  const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchTimeBlocks();
+  }, []);
+
+  const fetchTimeBlocks = async () => {
+    try {
+      console.log("fetch timeblocks ...");
+      const token = "tbd";
+      if (!token) throw new Error("No authentication token found.");
+
+      const data = await getTimeBlocks(token);
+
+      const sortedData = data.sort(
+        (a: TimeBlock, b: TimeBlock) =>
+          new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+
+      setTimeBlocks(sortedData);
+    } catch (err) {
+      console.log(err);
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch time blocks."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View className="flex gap-4">
       <View className="flex flex-row gap-2 items-center">

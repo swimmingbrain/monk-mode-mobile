@@ -2,11 +2,14 @@ import { View, Text, TouchableOpacity } from "react-native";
 import React, { useEffect, useState, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { updateXP } from "@/services/profile";
 
 const FocusMode = () => {
   const [timer, setTimer] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [xp, setXp] = useState(0);
+  const [isGivingUp, setIsGivingUp] = useState(false);
+  const [isRunning, setIsRunning] = useState(true);
 
   const router = useRouter();
 
@@ -19,25 +22,53 @@ const FocusMode = () => {
   };
 
   useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setTimer((prev) => prev + 1);
-    }, 1000);
+    if (isRunning) {
+      timerRef.current = setInterval(() => {
+        setTimer((prev) => prev + 1);
+      }, 1000);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
 
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     };
-  }, []);
+  }, [isRunning]);
 
   useEffect(() => {
-    // Update XP every minute (60 seconds)
-    const intervalId = setInterval(() => {
-      setXp((prevXp) => prevXp + 50);
-    }, 60000);
+    if (isRunning) {
+      const intervalId = setInterval(() => {
+        setXp((prevXp) => prevXp + 50);
+      }, 1000); // Changed to 1000ms to see effect quickly
 
-    return () => clearInterval(intervalId);
-  }, []);
+      return () => clearInterval(intervalId);
+    }
+  }, [isRunning]);
+
+  const handlePress = async () => {
+    if (isGivingUp) {
+      return; // Prevent multiple calls while processing
+    }
+
+    setIsGivingUp(true);
+    setIsRunning(false);
+
+    try {
+      if (xp > 0) {
+        const response = await updateXP(xp);
+      }
+      router.push("/");
+    } catch (error: any) {
+      console.error("Failed to update XP:", error.message);
+    } finally {
+      setIsGivingUp(false);
+    }
+  };
 
   return (
     <SafeAreaView className="bg-black">
@@ -49,7 +80,8 @@ const FocusMode = () => {
           <Text className="text-secondary">{xp} XP verdient</Text>
         </View>
         <TouchableOpacity
-          onPress={() => router.push("/")}
+          onPress={handlePress}
+          disabled={isGivingUp}
           className="flex flex-row items-center bg-secondary rounded-lg py-4 px-20"
         >
           <Text className="text-primary text-lg">aufgeben</Text>

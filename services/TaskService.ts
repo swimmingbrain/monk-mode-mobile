@@ -23,20 +23,12 @@ export async function getAllTasks(): Promise<Task[]> {
     headers: authHeaders(token),
   });
   if (!response.ok) {
-    throw new Error("Failed to fetch tasks.");
-  }
-  return response.json();
-}
-
-export async function getIncompleteTasks(): Promise<Task[]> {
-  const token = await getToken();
-  if (!token) throw new Error("No auth token found.");
-  const response = await fetch(`${API_CONFIG.BASE_URL}/api/tasks/incomplete`, {
-    method: "GET",
-    headers: authHeaders(token),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to fetch incomplete tasks.");
+    let errorMsg = response.statusText;
+    try {
+      const err = await response.json();
+      errorMsg = err.message || JSON.stringify(err);
+    } catch {}
+    throw new Error(`Status ${response.status}: ${errorMsg}`);
   }
   return response.json();
 }
@@ -53,7 +45,12 @@ export async function createTask(data: CreateTaskDTO): Promise<Task> {
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    throw new Error("Failed to create task.");
+    let errorMsg = response.statusText;
+    try {
+      const err = await response.json();
+      errorMsg = err.message || JSON.stringify(err);
+    } catch {}
+    throw new Error(`Status ${response.status}: ${errorMsg}`);
   }
   return response.json();
 }
@@ -70,7 +67,12 @@ export async function updateTask(taskId: number, updateData: Partial<Task>): Pro
     body: JSON.stringify(updateData),
   });
   if (!response.ok) {
-    throw new Error("Failed to update task.");
+    let errorMsg = response.statusText;
+    try {
+      const err = await response.json();
+      errorMsg = err.message || JSON.stringify(err);
+    } catch {}
+    throw new Error(`Status ${response.status}: ${errorMsg}`);
   }
 }
 
@@ -82,7 +84,12 @@ export async function deleteTask(taskId: number): Promise<void> {
     headers: authHeaders(token),
   });
   if (!response.ok) {
-    throw new Error("Failed to delete task.");
+    let errorMsg = response.statusText;
+    try {
+      const err = await response.json();
+      errorMsg = err.message || JSON.stringify(err);
+    } catch {}
+    throw new Error(`Status ${response.status}: ${errorMsg}`);
   }
 }
 
@@ -94,7 +101,12 @@ export async function linkTaskToTimeBlock(taskId: number, timeblockId: string): 
     headers: authHeaders(token),
   });
   if (!response.ok) {
-    throw new Error("Failed to link task to time block.");
+    let errorMsg = response.statusText;
+    try {
+      const err = await response.json();
+      errorMsg = err.message || JSON.stringify(err);
+    } catch {}
+    throw new Error(`Status ${response.status}: ${errorMsg}`);
   }
 }
 
@@ -106,6 +118,11 @@ export async function unlinkTaskFromTimeBlock(taskId: number): Promise<void> {
     headers: authHeaders(token),
   });
   if (!response.ok) {
-    throw new Error("Failed to unlink task from time block.");
+    let errorMsg = response.statusText;
+    try {
+      const err = await response.json();
+      errorMsg = err.message || JSON.stringify(err);
+    } catch {}
+    throw new Error(`Status ${response.status}: ${errorMsg}`);
   }
 }

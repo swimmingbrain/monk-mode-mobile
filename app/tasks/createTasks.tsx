@@ -4,9 +4,7 @@ import { useRouter } from 'expo-router';
 import { createTask, CreateTaskDTO } from '@/services/TaskService';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-
-
-const CreateTask = () => {
+const CreateTasks = () => {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -19,9 +17,12 @@ const CreateTask = () => {
       return;
     }
     try {
-      const dto: CreateTaskDTO = { title: title.trim() };
-      if (description.trim()) dto.description = description.trim();
-      if (dueDate) dto.dueDate = dueDate.toISOString();
+      // Always include description and dueDate to satisfy backend requirements
+      const dto: CreateTaskDTO = {
+        title: title.trim(),
+        description: description.trim(), // may be empty string
+        dueDate: dueDate ? dueDate.toISOString() : null, // explicitly send null if unset
+      };
       await createTask(dto);
       router.back();
     } catch (error) {
@@ -58,7 +59,7 @@ const CreateTask = () => {
         className="bg-primary rounded-lg p-3 mb-4"
       >
         <Text className="text-secondary">
-          {dueDate ? dueDate.toLocaleDateString() : 'Set Due Date (optional)'}
+          {dueDate ? new Date(dueDate).toLocaleDateString() : 'Set Due Date (optional)'}
         </Text>
       </TouchableOpacity>
 
@@ -84,4 +85,4 @@ const CreateTask = () => {
   );
 };
 
-export default CreateTask;
+export default CreateTasks;

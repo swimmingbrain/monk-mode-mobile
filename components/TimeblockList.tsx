@@ -45,7 +45,7 @@ const TimeblockList = () => {
     }
   };
 
-  const handleSaveTimeblock = (timeblock: { title: string; date: string; startTime: string; endTime: string }) => {
+  const handleSaveTimeblock = (timeblock: { title: string; date: string; startTime: string; endTime: string; isFocus: boolean }) => {
     if (editingTimeBlock) {
       // Update existing time block
       setTimeBlocks(prevBlocks => {
@@ -75,7 +75,6 @@ const TimeblockList = () => {
       const newTimeBlock = {
         id: generateId(),
         ...timeblock,
-        isFocus: false,
         tasks: []
       };
       
@@ -198,6 +197,9 @@ const TimeblockList = () => {
                 <Text className="text-secondary font-medium">{timeBlock.title}</Text>
                 <Text className="text-secondary text-sm">
                   {timeBlock.startTime} - {timeBlock.endTime}
+                </Text>
+                <Text className="text-secondary text-xs mt-1">
+                  {timeBlock.isFocus ? 'Fokuszeit' : 'Freizeit'}
                 </Text>
               </View>
               <View className="flex-row">

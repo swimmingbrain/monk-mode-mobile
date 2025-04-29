@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, TouchableOpacity, TextInput, Platform, Alert } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, TextInput, Platform, Alert, Switch } from 'react-native';
 import { X, Calendar, Clock } from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { TimeBlock } from '@/types/types';
@@ -7,7 +7,7 @@ import { TimeBlock } from '@/types/types';
 interface TimeblockDialogProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (timeblock: { title: string; date: string; startTime: string; endTime: string }) => void;
+  onSave: (timeblock: { title: string; date: string; startTime: string; endTime: string; isFocus: boolean }) => void;
   timeBlock?: TimeBlock | null;
 }
 
@@ -16,6 +16,7 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({ visible, onClose, onS
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [isFocus, setIsFocus] = useState(true);
   
   // Date picker state
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -34,6 +35,7 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({ visible, onClose, onS
       setDate(timeBlock.date);
       setStartTime(timeBlock.startTime);
       setEndTime(timeBlock.endTime);
+      setIsFocus(timeBlock.isFocus);
       
       // Set date picker
       const dateObj = new Date(timeBlock.date);
@@ -55,6 +57,7 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({ visible, onClose, onS
       setDate('');
       setStartTime('');
       setEndTime('');
+      setIsFocus(true);
       setSelectedDate(new Date());
       setSelectedStartTime(new Date());
       setSelectedEndTime(new Date());
@@ -100,12 +103,13 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({ visible, onClose, onS
   const handleSave = () => {
     if (!validateForm()) return;
     
-    onSave({ title, date, startTime, endTime });
+    onSave({ title, date, startTime, endTime, isFocus });
     // Reset form
     setTitle('');
     setDate('');
     setStartTime('');
     setEndTime('');
+    setIsFocus(true);
   };
 
   const onDateChange = (event: any, selectedDate?: Date) => {
@@ -231,6 +235,38 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({ visible, onClose, onS
                   onChange={onEndTimeChange}
                 />
               )}
+            </View>
+          </View>
+
+          <View className="mb-4">
+            <Text className="mb-1 text-primary"></Text>
+            <View className="relative h-12 bg-gray-200 rounded-full overflow-hidden">
+              <View 
+                className="absolute h-full bg-primary transition-all duration-300 ease-in-out"
+                style={{ 
+                  width: '50%', 
+                  left: isFocus ? '50%' : '0%',
+                  borderRadius: 9999
+                }}
+              />
+              <View className="absolute inset-0 flex-row">
+                <TouchableOpacity 
+                  className="flex-1 items-center justify-center z-10"
+                  onPress={() => setIsFocus(false)}
+                >
+                  <Text className={`font-medium ${!isFocus ? 'text-white' : 'text-gray-600'}`}>
+                    Freizeit
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  className="flex-1 items-center justify-center z-10"
+                  onPress={() => setIsFocus(true)}
+                >
+                  <Text className={`font-medium ${isFocus ? 'text-white' : 'text-gray-600'}`}>
+                    Fokuszeit
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
           

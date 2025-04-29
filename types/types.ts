@@ -23,6 +23,8 @@ export interface UserProfile {
   id: string;
   username: string;
   email: string;
+  xp: number;
+  level: number;
 }
 
 export interface Friendship {
@@ -52,4 +54,14 @@ export interface LoginResponse {
 export interface ApiResponse {
   status: string;
   message: string;
+}
+
+export interface UpdateXPResponse {
+  message: string;
+  xp: number;
+  level: number;
+}
+
+export interface UpdateXPError {
+  errors: string[];
 }

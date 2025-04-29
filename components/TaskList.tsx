@@ -1,3 +1,5 @@
+// components/TaskList.tsx
+
 import React, { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { Plus, CheckCircle, Circle } from "lucide-react-native";
@@ -16,7 +18,10 @@ const TaskList = () => {
       const data = await getAllTasks();
       setTasks(data);
     } catch (error) {
-      Alert.alert("Error", error instanceof Error ? error.message : "Error loading tasks.");
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Error loading tasks."
+      );
     } finally {
       setLoading(false);
     }
@@ -32,11 +37,19 @@ const TaskList = () => {
   const openTasks = tasks.filter((t) => !t.isCompleted);
   const completedTasks = tasks.filter((t) => t.isCompleted);
 
+  // Wir senden jetzt bei jedem Toggle ALLE Pflicht- und optionalen Felder:
   const handleToggle = async (task: Task) => {
     try {
-      await updateTask(task.id, { isCompleted: !task.isCompleted });
+      await updateTask(task.id, {
+        title: task.title,
+        description: task.description ?? "",
+        dueDate: task.dueDate ?? undefined,
+        isCompleted: !task.isCompleted,
+      });
       setTasks((prev) =>
-        prev.map((t) => (t.id === task.id ? { ...t, isCompleted: !t.isCompleted } : t))
+        prev.map((t) =>
+          t.id === task.id ? { ...t, isCompleted: !t.isCompleted } : t
+        )
       );
     } catch {
       Alert.alert("Error", "Unable to change status.");
@@ -44,17 +57,21 @@ const TaskList = () => {
   };
 
   const handleDelete = async (taskId: number) => {
-    Alert.alert("Confirm deletion", "Do you really want to delete this task?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          await deleteTask(taskId);
-          setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    Alert.alert(
+      "Confirm deletion",
+      "Do you really want to delete this task?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            await deleteTask(taskId);
+            setTasks((prev) => prev.filter((t) => t.id !== taskId));
+          },
         },
-      },
-    ]);
+      ]
+    );
   };
 
   if (loading) {
@@ -115,7 +132,10 @@ const TaskList = () => {
               key={task.id}
               className="flex flex-row items-center justify-between bg-primary rounded-lg py-4 px-5 mb-2"
             >
-              <TouchableOpacity onPress={() => handleToggle(task)} className="mr-4">
+              <TouchableOpacity
+                onPress={() => handleToggle(task)}
+                className="mr-4"
+              >
                 <Circle size={24} color="#c1c1c1" />
               </TouchableOpacity>
               <View className="flex-1">
@@ -140,11 +160,16 @@ const TaskList = () => {
             key={task.id}
             className="flex flex-row items-center justify-between bg-primary rounded-lg py-4 px-5 mb-2"
           >
-            <TouchableOpacity onPress={() => handleToggle(task)} className="mr-4">
+            <TouchableOpacity
+              onPress={() => handleToggle(task)}
+              className="mr-4"
+            >
               <CheckCircle size={24} color="#4caf50" />
             </TouchableOpacity>
             <View className="flex-1">
-              <Text className="text-secondary line-through">{task.title}</Text>
+              <Text className="text-secondary line-through">
+                {task.title}
+              </Text>
               {task.dueDate && (
                 <Text className="text-sm text-gray-400">
                   {new Date(task.dueDate).toLocaleDateString()}
@@ -152,7 +177,10 @@ const TaskList = () => {
               )}
             </View>
             <View className="flex flex-row">
-              <TouchableOpacity onPress={() => handleToggle(task)} className="mr-4">
+              <TouchableOpacity
+                onPress={() => handleToggle(task)}
+                className="mr-4"
+              >
                 <Text className="text-blue-400">Undo</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => handleDelete(task.id)}>

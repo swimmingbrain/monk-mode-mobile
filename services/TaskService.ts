@@ -126,3 +126,27 @@ export async function unlinkTaskFromTimeBlock(taskId: number): Promise<void> {
     throw new Error(`Status ${response.status}: ${errorMsg}`);
   }
 }
+
+export async function getTaskById(taskId: number): Promise<Task> {
+  const token = await getToken();
+  if (!token) throw new Error("No auth token found.");
+
+  const response = await fetch(`${API_CONFIG.BASE_URL}/api/tasks/${taskId}`, {
+    method: "GET",
+    headers: {
+      ...API_CONFIG.headers,
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    let errorMsg = response.statusText;
+    try {
+      const err = await response.json();
+      errorMsg = err.message || JSON.stringify(err);
+    } catch {}
+    throw new Error(`Status ${response.status}: ${errorMsg}`);
+  }
+
+  return response.json();
+}

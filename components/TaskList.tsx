@@ -1,5 +1,3 @@
-// components/TaskList.tsx
-
 import React, { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { Plus, CheckCircle, Circle } from "lucide-react-native";
@@ -37,13 +35,12 @@ const TaskList = () => {
   const openTasks = tasks.filter((t) => !t.isCompleted);
   const completedTasks = tasks.filter((t) => t.isCompleted);
 
-  // Wir senden jetzt bei jedem Toggle ALLE Pflicht- und optionalen Felder:
   const handleToggle = async (task: Task) => {
     try {
       await updateTask(task.id, {
         title: task.title,
         description: task.description ?? "",
-        dueDate: task.dueDate ?? undefined,
+        dueDate: task.dueDate,
         isCompleted: !task.isCompleted,
       });
       setTasks((prev) =>
@@ -132,20 +129,33 @@ const TaskList = () => {
               key={task.id}
               className="flex flex-row items-center justify-between bg-primary rounded-lg py-4 px-5 mb-2"
             >
+              {/* Checkbox */}
               <TouchableOpacity
                 onPress={() => handleToggle(task)}
                 className="mr-4"
               >
                 <Circle size={24} color="#c1c1c1" />
               </TouchableOpacity>
-              <View className="flex-1">
+
+              {/* Title/Details: navigates to edit on press */}
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/tasks/[taskid]",
+                    params: { taskid: task.id.toString() },
+                  })
+                }
+                className="flex-1"
+              >
                 <Text className="text-secondary">{task.title}</Text>
                 {task.dueDate && (
                   <Text className="text-sm text-gray-400">
                     {new Date(task.dueDate).toLocaleDateString()}
                   </Text>
                 )}
-              </View>
+              </TouchableOpacity>
+
+              {/* Delete */}
               <TouchableOpacity onPress={() => handleDelete(task.id)}>
                 <Text className="text-red-500">Delete</Text>
               </TouchableOpacity>
@@ -160,13 +170,24 @@ const TaskList = () => {
             key={task.id}
             className="flex flex-row items-center justify-between bg-primary rounded-lg py-4 px-5 mb-2"
           >
+            {/* Completed checkbox */}
             <TouchableOpacity
               onPress={() => handleToggle(task)}
               className="mr-4"
             >
               <CheckCircle size={24} color="#4caf50" />
             </TouchableOpacity>
-            <View className="flex-1">
+
+            {/* Title/Details: navigates to edit on press */}
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: "/tasks/[taskid]",
+                  params: { taskid: task.id.toString() },
+                })
+              }
+              className="flex-1"
+            >
               <Text className="text-secondary line-through">
                 {task.title}
               </Text>
@@ -175,7 +196,9 @@ const TaskList = () => {
                   {new Date(task.dueDate).toLocaleDateString()}
                 </Text>
               )}
-            </View>
+            </TouchableOpacity>
+
+            {/* Undo & Delete */}
             <View className="flex flex-row">
               <TouchableOpacity
                 onPress={() => handleToggle(task)}

@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRouter, useSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { getTaskById, updateTask } from '@/services/TaskService';
 import { Task } from '@/types/types';
 
 export default function EditTask() {
-  const { tasksid } = useSearchParams<{ tasksid: string }>();
+  // Extract the dynamic route parameter 'taskid'
+  const { taskid } = useLocalSearchParams<{ taskid: string }>();
   const router = useRouter();
-  const taskId = Number(tasksid);
+  const id = Number(taskid);
 
   const [task, setTask] = useState<Task | null>(null);
   const [title, setTitle] = useState('');
@@ -20,7 +21,7 @@ export default function EditTask() {
   useEffect(() => {
     async function loadTask() {
       try {
-        const data = await getTaskById(taskId);
+        const data = await getTaskById(id);
         setTask(data);
         setTitle(data.title);
         setDescription(data.description ?? '');
@@ -33,7 +34,7 @@ export default function EditTask() {
       }
     }
     loadTask();
-  }, [taskId]);
+  }, [id]);
 
   const onSave = async () => {
     if (!title.trim()) {
@@ -41,10 +42,13 @@ export default function EditTask() {
       return;
     }
     try {
-      const dto: Partial<Task> = { title: title.trim(), isCompleted: task?.isCompleted ?? false };
+      const dto: Partial<Task> = {
+        title: title.trim(),
+        isCompleted: task?.isCompleted ?? false,
+      };
       if (description.trim()) dto.description = description.trim();
       if (dueDate) dto.dueDate = dueDate.toISOString();
-      await updateTask(taskId, dto);
+      await updateTask(id, dto);
       router.back();
     } catch (err) {
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to update task');

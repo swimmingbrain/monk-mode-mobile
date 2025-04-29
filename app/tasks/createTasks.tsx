@@ -17,11 +17,11 @@ const CreateTasks = () => {
       return;
     }
     try {
-      // Always include description and dueDate to satisfy backend requirements
+      // Build DTO, omit dueDate if undefined
       const dto: CreateTaskDTO = {
         title: title.trim(),
-        description: description.trim(), // may be empty string
-        dueDate: dueDate ? dueDate.toISOString() : null, // explicitly send null if unset
+        description: description.trim(),
+        dueDate: dueDate ? dueDate.toISOString() : undefined,
       };
       await createTask(dto);
       router.back();
@@ -59,7 +59,7 @@ const CreateTasks = () => {
         className="bg-primary rounded-lg p-3 mb-4"
       >
         <Text className="text-secondary">
-          {dueDate ? new Date(dueDate).toLocaleDateString() : 'Set Due Date (optional)'}
+          {dueDate ? dueDate.toLocaleDateString() : 'Set Due Date (optional)'}
         </Text>
       </TouchableOpacity>
 

@@ -34,10 +34,8 @@ export default function RootLayout() {
       <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)/register" options={{ headerShown: false }} />
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="focusmode/FocusMode"
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="focusmode/FocusMode" options={{ headerShown: false }} />
+      <Stack.Screen name="tasks/createTasks"  options={{ title: "New Task" }}/>
       <Stack.Screen name="friends/Friends" options={{ headerShown: false }} />
       <Stack.Screen name="profile/Profile" options={{ headerShown: false }} />
     </Stack>

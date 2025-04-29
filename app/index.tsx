@@ -1,4 +1,4 @@
-import { View, ScrollView } from "react-native";
+import { View,ScrollView } from "react-native";
 import React from "react";
 import Header from "@/components/Header";
 import TimeblockList from "@/components/TimeblockList";

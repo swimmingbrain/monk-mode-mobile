@@ -1,20 +1,215 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import React from "react";
-import { Plus } from "lucide-react-native";
+import React, { useState, useCallback } from "react";
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { Plus, CheckCircle, Circle } from "lucide-react-native";
+import { useRouter, useFocusEffect } from "expo-router";
+import { getAllTasks, deleteTask, updateTask } from "@/services/TaskService";
+import { Task } from "@/types/types";
 
 const TaskList = () => {
+  const router = useRouter();
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"open" | "completed">("open");
+
+  const fetchTasks = async () => {
+    try {
+      const data = await getAllTasks();
+      setTasks(data);
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Error loading tasks."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      fetchTasks();
+    }, [])
+  );
+
+  const openTasks = tasks.filter((t) => !t.isCompleted);
+  const completedTasks = tasks.filter((t) => t.isCompleted);
+
+  const handleToggle = async (task: Task) => {
+    try {
+      await updateTask(task.id, {
+        title: task.title,
+        description: task.description ?? "",
+        dueDate: task.dueDate,
+        isCompleted: !task.isCompleted,
+      });
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === task.id ? { ...t, isCompleted: !t.isCompleted } : t
+        )
+      );
+    } catch {
+      Alert.alert("Error", "Unable to change status.");
+    }
+  };
+
+  const handleDelete = async (taskId: number) => {
+    Alert.alert(
+      "Confirm deletion",
+      "Do you really want to delete this task?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            await deleteTask(taskId);
+            setTasks((prev) => prev.filter((t) => t.id !== taskId));
+          },
+        },
+      ]
+    );
+  };
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#fff" />;
+  }
+
+  // Helper to format ISO date string as DD.MM.YYYY
+  const formatDate = (iso: string) => {
+    const datePart = iso.split('T')[0];
+    const [year, month, day] = datePart.split('-');
+    return `${day}.${month}.${year}`;
+  };
+
   return (
-    <View className="flex gap-4">
-      <View className="flex flex-row gap-2 items-center">
-        <Text className="text-xl text-secondary">Aufgaben</Text>
+    <View className="flex-1 bg-black p-4">
+      {/* Tabs */}
+      <View className="flex flex-row mb-4">
+        <TouchableOpacity
+          onPress={() => setActiveTab("open")}
+          className={`flex-1 py-2 items-center rounded-t-lg ${
+            activeTab === "open" ? "bg-secondary" : "bg-primary"
+          }`}
+        >
+          <Text
+            className={`font-semibold ${
+              activeTab === "open" ? "text-primary" : "text-secondary"
+            }`}
+          >
+            Open Tasks
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setActiveTab("completed")}
+          className={`flex-1 py-2 items-center rounded-t-lg ${
+            activeTab === "completed" ? "bg-secondary" : "bg-primary"
+          }`}
+        >
+          <Text
+            className={`font-semibold ${
+              activeTab === "completed" ? "text-primary" : "text-secondary"
+            }`}
+          >
+            Completed Tasks
+          </Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity className="flex flex-row gap-2 items-center bg-primary rounded-lg py-4 px-5">
-        <Text className="text-secondary">Aufgabe 1</Text>
-      </TouchableOpacity>
-      <TouchableOpacity className="flex flex-row items-center justify-end gap-2">
-        <Plus color="#c1c1c1" size={20} />
-        <Text className="text-secondary">Aufgabe hinzufügen</Text>
-      </TouchableOpacity>
+
+      {/* + Add Task only on Open tab */}
+      {activeTab === "open" && (
+        <TouchableOpacity
+          onPress={() => router.push("/tasks/createTasks")}
+          className="flex flex-row items-center justify-end mb-2"
+        >
+          <Plus color="#c1c1c1" size={24} />
+        </TouchableOpacity>
+      )}
+
+      {/* Task Lists */}
+      {activeTab === "open" ? (
+        openTasks.length === 0 ? (
+          <Text className="text-secondary text-center">No open tasks.</Text>
+        ) : (
+          openTasks.map((task) => (
+            <View
+              key={task.id}
+              className="flex flex-row items-center justify-between bg-primary rounded-lg py-4 px-5 mb-2"
+            >
+              {/* Checkbox */}
+              <TouchableOpacity
+                onPress={() => handleToggle(task)}
+                className="mr-4"
+              >
+                <Circle size={24} color="#c1c1c1" />
+              </TouchableOpacity>
+
+              {/* Title/Details: navigates to edit on press */}
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/tasks/[taskid]",
+                    params: { taskid: task.id.toString() },
+                  })
+                }
+                className="flex-1"
+              >
+                <Text className="text-secondary">{task.title}</Text>
+                {task.dueDate != null && (
+                  <Text className="text-sm text-gray-400">
+                    {formatDate(task.dueDate)}
+                  </Text>
+                )}
+              </TouchableOpacity>
+
+              {/* Delete */}
+              <TouchableOpacity onPress={() => handleDelete(task.id)}>
+                <Text className="text-red-500">Delete</Text>
+              </TouchableOpacity>
+            </View>
+          ))
+        )
+      ) : completedTasks.length === 0 ? (
+        <Text className="text-secondary text-center">No completed tasks.</Text>
+      ) : (
+        completedTasks.map((task) => (
+          <View
+            key={task.id}
+            className="flex flex-row items-center justify-between bg-primary rounded-lg py-4 px-5 mb-2"
+          >
+            {/* Completed checkbox */}
+            <TouchableOpacity
+              onPress={() => handleToggle(task)}
+              className="mr-4"
+            >
+              <CheckCircle size={24} color="#4caf50" />
+            </TouchableOpacity>
+
+            {/* Title/Details: VIEW ONLY in completed */}
+            <View className="flex-1">
+              <Text className="text-secondary line-through">{task.title}</Text>
+              {task.dueDate != null && (
+                <Text className="text-sm text-gray-400">
+                  {formatDate(task.dueDate)}
+                </Text>
+              )}
+            </View>
+
+            {/* Undo & Delete */}
+            <View className="flex flex-row">
+              <TouchableOpacity
+                onPress={() => handleToggle(task)}
+                className="mr-4"
+              >
+                <Text className="text-blue-400">Undo</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDelete(task.id)}>
+                <Text className="text-red-500">Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))
+      )}
     </View>
   );
 };

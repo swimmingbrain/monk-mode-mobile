@@ -35,6 +35,7 @@ const TaskList = () => {
   const openTasks = tasks.filter((t) => !t.isCompleted);
   const completedTasks = tasks.filter((t) => t.isCompleted);
 
+  // Toggle complete/undo: send full payload including title, description, dueDate
   const handleToggle = async (task: Task) => {
     try {
       await updateTask(task.id, {
@@ -178,25 +179,15 @@ const TaskList = () => {
               <CheckCircle size={24} color="#4caf50" />
             </TouchableOpacity>
 
-            {/* Title/Details: navigates to edit on press */}
-            <TouchableOpacity
-              onPress={() =>
-                router.push({
-                  pathname: "/tasks/[taskid]",
-                  params: { taskid: task.id.toString() },
-                })
-              }
-              className="flex-1"
-            >
-              <Text className="text-secondary line-through">
-                {task.title}
-              </Text>
+            {/* Title/Details: VIEW ONLY in completed */}
+            <View className="flex-1">
+              <Text className="text-secondary line-through">{task.title}</Text>
               {task.dueDate && (
                 <Text className="text-sm text-gray-400">
                   {new Date(task.dueDate).toLocaleDateString()}
                 </Text>
               )}
-            </TouchableOpacity>
+            </View>
 
             {/* Undo & Delete */}
             <View className="flex flex-row">

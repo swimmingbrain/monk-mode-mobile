@@ -1,12 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import {  View,  Text,  TextInput,  TouchableOpacity,  Alert,  ActivityIndicator,  KeyboardAvoidingView,  Platform,} from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { getTaskById, updateTask } from '@/services/TaskService';
 import { Task } from '@/types/types';
-
 export default function EditTask() {
-  // Extract the dynamic route parameter 'taskid'
   const { taskid } = useLocalSearchParams<{ taskid: string }>();
   const router = useRouter();
   const id = Number(taskid);
@@ -17,9 +16,10 @@ export default function EditTask() {
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    async function loadTask() {
+    async function load() {
       try {
         const data = await getTaskById(id);
         setTask(data);
@@ -33,7 +33,7 @@ export default function EditTask() {
         setLoading(false);
       }
     }
-    loadTask();
+    load();
   }, [id]);
 
   const onSave = async () => {
@@ -41,6 +41,18 @@ export default function EditTask() {
       Alert.alert('Validation', 'Title is required');
       return;
     }
+    if (dueDate) {
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const sel = new Date(dueDate);
+      sel.setHours(0,0,0,0);
+      if (sel < today) {
+        Alert.alert('Validation', 'Due date cannot be in the past');
+        return;
+      }
+    }
+
+    setSaving(true);
     try {
       const dto: Partial<Task> = {
         title: title.trim(),
@@ -52,6 +64,8 @@ export default function EditTask() {
       router.back();
     } catch (err) {
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to update task');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -97,6 +111,7 @@ export default function EditTask() {
           value={dueDate || new Date()}
           mode="date"
           display="default"
+          minimumDate={new Date()}
           onChange={(_, d) => {
             setShowDatePicker(false);
             if (d) setDueDate(d);
@@ -106,9 +121,13 @@ export default function EditTask() {
 
       <TouchableOpacity
         onPress={onSave}
+        disabled={saving}
         className="bg-secondary rounded-lg py-4 items-center"
       >
-        <Text className="text-primary text-lg">Save Changes</Text>
+        {saving
+          ? <ActivityIndicator color="#000" />
+          : <Text className="text-primary text-lg">Save Changes</Text>
+        }
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );

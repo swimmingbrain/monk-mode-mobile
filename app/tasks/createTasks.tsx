@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { createTask, CreateTaskDTO } from '@/services/TaskService';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -10,14 +19,27 @@ const CreateTasks = () => {
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const onSave = async () => {
     if (!title.trim()) {
       Alert.alert('Validation', 'Title is required');
       return;
     }
+    // Past-Date Check
+    if (dueDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const sel = new Date(dueDate);
+      sel.setHours(0, 0, 0, 0);
+      if (sel < today) {
+        Alert.alert('Validation', 'Due date cannot be in the past');
+        return;
+      }
+    }
+
+    setSaving(true);
     try {
-      // Build DTO, omit dueDate if undefined
       const dto: CreateTaskDTO = {
         title: title.trim(),
         description: description.trim(),
@@ -27,6 +49,8 @@ const CreateTasks = () => {
       router.back();
     } catch (error) {
       Alert.alert('Error', error instanceof Error ? error.message : 'Failed to create task');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -68,7 +92,8 @@ const CreateTasks = () => {
           value={dueDate || new Date()}
           mode="date"
           display="default"
-          onChange={(event, date) => {
+          minimumDate={new Date()}
+          onChange={(_, date) => {
             setShowDatePicker(false);
             if (date) setDueDate(date);
           }}
@@ -77,9 +102,13 @@ const CreateTasks = () => {
 
       <TouchableOpacity
         onPress={onSave}
+        disabled={saving}
         className="bg-secondary rounded-lg py-4 items-center"
       >
-        <Text className="text-primary text-lg">Save</Text>
+        {saving
+          ? <ActivityIndicator color="#000" />
+          : <Text className="text-primary text-lg">Save</Text>
+        }
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );

@@ -43,7 +43,6 @@ export default function Register() {
 
     try {
       const response = await register({ username, email, password });
-      console.log(response.status);
       if (response.status.toLocaleLowerCase() === "success") {
         router.replace("/(auth)/login");
       } else {

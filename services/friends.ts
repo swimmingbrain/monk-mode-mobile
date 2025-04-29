@@ -9,8 +9,6 @@ export async function getFriends(): Promise<Friendship[]> {
       throw new Error("No authentication token found");
     }
 
-    console.log(`Fetching friends from: ${API_CONFIG.BASE_URL}/api/Friendship`);
-    
     const response = await fetch(`${API_CONFIG.BASE_URL}/api/Friendship`, {
       method: "GET",
       headers: {
@@ -20,16 +18,15 @@ export async function getFriends(): Promise<Friendship[]> {
       },
     });
 
-    console.log(`Friends API response status: ${response.status}`);
-    
     if (!response.ok) {
       const errorData = await response.text();
       console.error(`Friends API error response: ${errorData}`);
-      throw new Error(errorData || `Failed to fetch friends (Status: ${response.status})`);
+      throw new Error(
+        errorData || `Failed to fetch friends (Status: ${response.status})`
+      );
     }
 
     const data = await response.json();
-    console.log(`Friends API response data: ${JSON.stringify(data)}`);
     return data;
   } catch (error) {
     console.error("Error fetching friends:", error);
@@ -39,4 +36,4 @@ export async function getFriends(): Promise<Friendship[]> {
     }
     throw error;
   }
-} 
+}

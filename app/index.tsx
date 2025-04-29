@@ -6,11 +6,11 @@ import FocusModeButton from "@/components/FocusModeButton";
 import CurrentFocusTime from "@/components/CurrentFocusTime";
 import TaskList from "@/components/TaskList";
 import { House } from "lucide-react-native";
-import SafeAreaWrapper from "@/components/SafeAreaWrapper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   return (
-    <SafeAreaWrapper className="bg-black">
+    <SafeAreaView className="bg-black h-full py-8">
       <ScrollView>
         <View className="flex gap-10 px-4 py-4">
           <Header title="Dashboard" icon={House} />
@@ -20,6 +20,6 @@ export default function Index() {
           <TaskList />
         </View>
       </ScrollView>
-    </SafeAreaWrapper>
+    </SafeAreaView>
   );
 }

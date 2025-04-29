@@ -1,4 +1,10 @@
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { MoveLeft } from "lucide-react-native";
@@ -7,7 +13,7 @@ import { removeToken } from "@/services/auth";
 import { getUserProfile } from "@/services/profile";
 import { getFriends } from "@/services/friends";
 import { UserProfile, Friendship } from "@/types/types";
-import SafeAreaWrapper from "@/components/SafeAreaWrapper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Profile = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -27,14 +33,12 @@ const Profile = () => {
         }
       }
     };
-    
+
     const loadFriends = async () => {
       try {
         setIsLoading(true);
         setError("");
-        console.log("Starting to load friends...");
         const loadedFriends = await getFriends();
-        console.log(`Successfully loaded ${loadedFriends.length} friends`);
         setFriends(loadedFriends);
       } catch (err) {
         console.error("Error loading friends:", err);
@@ -47,7 +51,7 @@ const Profile = () => {
         setIsLoading(false);
       }
     };
-    
+
     loadProfile();
     loadFriends();
   }, []);
@@ -62,7 +66,7 @@ const Profile = () => {
   };
 
   return (
-    <SafeAreaWrapper className="bg-black">
+    <SafeAreaView className="bg-black h-full py-8">
       <ScrollView>
         <View className="flex gap-10 px-4 py-4">
           <Header title="Profile" icon={MoveLeft} />
@@ -88,10 +92,14 @@ const Profile = () => {
 
           {/* Statistics Section */}
           <View>
-            <Text className="text-secondary text-xl font-bold mb-4">Focus Statistics</Text>
+            <Text className="text-secondary text-xl font-bold mb-4">
+              Focus Statistics
+            </Text>
             <View className="flex-row flex-wrap justify-between">
               <View className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4">
-                <Text className="text-secondary/70 text-sm">Today's Focus Time</Text>
+                <Text className="text-secondary/70 text-sm">
+                  Today's Focus Time
+                </Text>
                 <Text className="text-secondary text-2xl font-bold">0h 0m</Text>
               </View>
               <View className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4">
@@ -99,11 +107,15 @@ const Profile = () => {
                 <Text className="text-secondary text-2xl font-bold">0h 0m</Text>
               </View>
               <View className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4">
-                <Text className="text-secondary/70 text-sm">All Time Focus</Text>
+                <Text className="text-secondary/70 text-sm">
+                  All Time Focus
+                </Text>
                 <Text className="text-secondary text-2xl font-bold">0h 0m</Text>
               </View>
               <View className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4">
-                <Text className="text-secondary/70 text-sm">Completed Tasks</Text>
+                <Text className="text-secondary/70 text-sm">
+                  Completed Tasks
+                </Text>
                 <Text className="text-secondary text-2xl font-bold">0</Text>
               </View>
             </View>
@@ -115,7 +127,7 @@ const Profile = () => {
               <Text className="text-secondary text-xl font-bold">
                 Friends ({friends.length})
               </Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 className="bg-primary px-3 py-1 rounded"
                 onPress={() => router.push("/friends/Friends")}
               >
@@ -127,7 +139,9 @@ const Profile = () => {
             ) : error ? (
               <Text className="text-red-500">{error}</Text>
             ) : friends.length === 0 ? (
-              <Text className="text-secondary/70">You don't have any friends yet.</Text>
+              <Text className="text-secondary/70">
+                You don't have any friends yet.
+              </Text>
             ) : (
               <View className="flex-row flex-wrap">
                 {friends.slice(0, 4).map((friend) => (
@@ -163,11 +177,13 @@ const Profile = () => {
             className="bg-red-400/15 p-4 rounded-lg"
             onPress={handleLogout}
           >
-            <Text className="text-red-400/60 text-center font-semibold">Logout</Text>
+            <Text className="text-red-400/60 text-center font-semibold">
+              Logout
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaWrapper>
+    </SafeAreaView>
   );
 };
 

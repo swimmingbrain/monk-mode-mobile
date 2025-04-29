@@ -1,14 +1,27 @@
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { MoveLeft } from "lucide-react-native";
-import { router } from "expo-router";
-import { getFriends, getFriendRequests, acceptFriendRequest, rejectFriendRequest, removeFriend, Friendship } from "@/services/friendship";
-import SafeAreaWrapper from "@/components/SafeAreaWrapper";
+import {
+  getFriends,
+  getFriendRequests,
+  acceptFriendRequest,
+  rejectFriendRequest,
+  removeFriend,
+  Friendship,
+} from "@/services/friendship";
 import FriendItem from "@/components/FriendItem";
 import FriendRequest from "@/components/FriendRequest";
 import FriendRequestForm from "@/components/FriendRequestForm";
 import { signalRService } from "@/services/signalR";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Friends = () => {
   const [friends, setFriends] = useState<Friendship[]>([]);
@@ -16,7 +29,7 @@ const Friends = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<'friends' | 'requests'>('friends');
+  const [activeTab, setActiveTab] = useState<"friends" | "requests">("friends");
 
   const loadFriends = async () => {
     try {
@@ -57,7 +70,7 @@ const Friends = () => {
   useEffect(() => {
     loadFriends();
     loadFriendRequests();
-    
+
     // Set up SignalR listeners for real-time notifications
     signalRService.onReceiveFriendRequest((userId, username) => {
       Alert.alert(
@@ -67,18 +80,18 @@ const Friends = () => {
           {
             text: "View",
             onPress: () => {
-              setActiveTab('requests');
+              setActiveTab("requests");
               loadFriendRequests();
-            }
+            },
           },
           {
             text: "Later",
-            style: "cancel"
-          }
+            style: "cancel",
+          },
         ]
       );
     });
-    
+
     signalRService.onFriendRequestAccepted((userId) => {
       Alert.alert(
         "Friend Request Accepted",
@@ -87,25 +100,25 @@ const Friends = () => {
           {
             text: "View Friends",
             onPress: () => {
-              setActiveTab('friends');
+              setActiveTab("friends");
               loadFriends();
-            }
+            },
           },
           {
             text: "OK",
-            style: "cancel"
-          }
+            style: "cancel",
+          },
         ]
       );
     });
-    
+
     signalRService.onFriendRequestRejected((userId) => {
       Alert.alert(
         "Friend Request Rejected",
         "Your friend request was rejected"
       );
     });
-    
+
     return () => {
       signalRService.removeAllListeners();
     };
@@ -145,7 +158,7 @@ const Friends = () => {
       [
         {
           text: "Cancel",
-          style: "cancel"
+          style: "cancel",
         },
         {
           text: "Remove",
@@ -161,8 +174,8 @@ const Friends = () => {
             } finally {
               setIsActionLoading(false);
             }
-          }
-        }
+          },
+        },
       ]
     );
   };
@@ -173,34 +186,46 @@ const Friends = () => {
   };
 
   return (
-    <SafeAreaWrapper className="bg-black">
+    <SafeAreaView className="bg-black h-full py-8">
       <ScrollView>
         <View className="flex gap-10 px-4 py-4">
           <Header title="Friends" icon={MoveLeft} />
-          
+
           {/* Tabs */}
           <View className="flex-row bg-secondary/10 rounded-lg p-1">
             <TouchableOpacity
-              className={`flex-1 p-2 rounded ${activeTab === 'friends' ? 'bg-primary' : ''}`}
-              onPress={() => setActiveTab('friends')}
+              className={`flex-1 p-2 rounded ${
+                activeTab === "friends" ? "bg-primary" : ""
+              }`}
+              onPress={() => setActiveTab("friends")}
             >
-              <Text className={`text-center font-medium ${activeTab === 'friends' ? 'text-white' : 'text-secondary'}`}>
+              <Text
+                className={`text-center font-medium ${
+                  activeTab === "friends" ? "text-white" : "text-secondary"
+                }`}
+              >
                 Friends ({friends.length})
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className={`flex-1 p-2 rounded ${activeTab === 'requests' ? 'bg-primary' : ''}`}
-              onPress={() => setActiveTab('requests')}
+              className={`flex-1 p-2 rounded ${
+                activeTab === "requests" ? "bg-primary" : ""
+              }`}
+              onPress={() => setActiveTab("requests")}
             >
-              <Text className={`text-center font-medium ${activeTab === 'requests' ? 'text-white' : 'text-secondary'}`}>
+              <Text
+                className={`text-center font-medium ${
+                  activeTab === "requests" ? "text-white" : "text-secondary"
+                }`}
+              >
                 Requests ({friendRequests.length})
               </Text>
             </TouchableOpacity>
           </View>
-          
+
           {/* Add Friend Form */}
           <FriendRequestForm onRequestSent={handleRequestSent} />
-          
+
           {isLoading ? (
             <View className="flex items-center justify-center py-10">
               <ActivityIndicator size="large" color="#c1c1c1" />
@@ -209,11 +234,15 @@ const Friends = () => {
             <View className="bg-red-500/20 p-4 rounded-lg">
               <Text className="text-red-500">{error}</Text>
             </View>
-          ) : activeTab === 'friends' ? (
+          ) : activeTab === "friends" ? (
             <View>
-              <Text className="text-secondary text-xl font-bold mb-4">Your Friends</Text>
+              <Text className="text-secondary text-xl font-bold mb-4">
+                Your Friends
+              </Text>
               {friends.length === 0 ? (
-                <Text className="text-secondary/70">You don't have any friends yet.</Text>
+                <Text className="text-secondary/70">
+                  You don't have any friends yet.
+                </Text>
               ) : (
                 friends.map((friend) => (
                   <FriendItem
@@ -227,9 +256,13 @@ const Friends = () => {
             </View>
           ) : (
             <View>
-              <Text className="text-secondary text-xl font-bold mb-4">Friend Requests</Text>
+              <Text className="text-secondary text-xl font-bold mb-4">
+                Friend Requests
+              </Text>
               {friendRequests.length === 0 ? (
-                <Text className="text-secondary/70">You don't have any pending friend requests.</Text>
+                <Text className="text-secondary/70">
+                  You don't have any pending friend requests.
+                </Text>
               ) : (
                 friendRequests.map((request) => (
                   <FriendRequest
@@ -245,7 +278,7 @@ const Friends = () => {
           )}
         </View>
       </ScrollView>
-    </SafeAreaWrapper>
+    </SafeAreaView>
   );
 };
 

@@ -215,7 +215,7 @@ const TimeblockList = () => {
           <Text className="text-secondary">noch nichts geplant ...</Text>
         </TouchableOpacity>
       ) : (
-        <ScrollView className="max-h-[300px]">
+        <ScrollView>
           {timeBlocksForToday.map((timeBlock) => (
             <View
               key={timeBlock.id}

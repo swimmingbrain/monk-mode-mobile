@@ -48,13 +48,27 @@ const TimeblockList = () => {
   const handleSaveTimeblock = (timeblock: { title: string; date: string; startTime: string; endTime: string }) => {
     if (editingTimeBlock) {
       // Update existing time block
-      setTimeBlocks(prevBlocks => 
-        prevBlocks.map(block => 
+      setTimeBlocks(prevBlocks => {
+        const updatedBlocks = prevBlocks.map(block => 
           block.id === editingTimeBlock.id 
             ? { ...block, ...timeblock } 
             : block
-        )
-      );
+          );
+        
+          // Sort the updated blocks by date and time
+          return updatedBlocks.sort((a, b) => {
+            // First sort by date
+            const dateComparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+            if (dateComparison !== 0) return dateComparison;
+            
+            // If dates are the same, sort by start time
+            const [aStartHour, aStartMin] = a.startTime.split(':').map(Number);
+            const [bStartHour, bStartMin] = b.startTime.split(':').map(Number);
+            
+            if (aStartHour !== bStartHour) return aStartHour - bStartHour;
+            return aStartMin - bStartMin;
+          });
+        });
       setEditingTimeBlock(null);
     } else {
       // Create a new time block with a unique ID
@@ -65,8 +79,24 @@ const TimeblockList = () => {
         tasks: []
       };
       
-      // Add the new time block to the list
-      setTimeBlocks(prevBlocks => [...prevBlocks, newTimeBlock]);
+      // Add the new time block to the list and sort
+      setTimeBlocks(prevBlocks => {
+        const updatedBlocks = [...prevBlocks, newTimeBlock];
+        
+        // Sort the updated blocks by date and time
+        return updatedBlocks.sort((a, b) => {
+          // First sort by date
+          const dateComparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+          if (dateComparison !== 0) return dateComparison;
+          
+          // If dates are the same, sort by start time
+          const [aStartHour, aStartMin] = a.startTime.split(':').map(Number);
+          const [bStartHour, bStartMin] = b.startTime.split(':').map(Number);
+          
+          if (aStartHour !== bStartHour) return aStartHour - bStartHour;
+          return aStartMin - bStartMin;
+        });
+      });
     }
     
     // Close the dialog
@@ -113,13 +143,30 @@ const TimeblockList = () => {
   };
 
   const formatSelectedDate = () => {
+    // Check if the selected date is today
+    const today = new Date();
+    const isToday = selectedDate.toDateString() === today.toDateString();
+    
+    if (isToday) {
+      return "Heute";
+    } else {
     const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     return selectedDate.toLocaleDateString('de-DE', options);
+    }
   };
 
   const getTimeBlocksForSelectedDate = () => {
     const selectedDateString = selectedDate.toISOString().split('T')[0];
-    return timeBlocks.filter(block => block.date === selectedDateString);
+    const filteredBlocks = timeBlocks.filter(block => block.date === selectedDateString);
+    
+    // Sort the filtered blocks by start time
+    return filteredBlocks.sort((a, b) => {
+      const [aStartHour, aStartMin] = a.startTime.split(':').map(Number);
+      const [bStartHour, bStartMin] = b.startTime.split(':').map(Number);
+      
+      if (aStartHour !== bStartHour) return aStartHour - bStartHour;
+      return aStartMin - bStartMin;
+    });
   };
 
   const timeBlocksForToday = getTimeBlocksForSelectedDate();

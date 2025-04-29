@@ -35,7 +35,6 @@ const TaskList = () => {
   const openTasks = tasks.filter((t) => !t.isCompleted);
   const completedTasks = tasks.filter((t) => t.isCompleted);
 
-  // Toggle complete/undo: send full payload including title, description, dueDate
   const handleToggle = async (task: Task) => {
     try {
       await updateTask(task.id, {
@@ -75,6 +74,13 @@ const TaskList = () => {
   if (loading) {
     return <ActivityIndicator size="large" color="#fff" />;
   }
+
+  // Helper to format ISO date string as DD.MM.YYYY
+  const formatDate = (iso: string) => {
+    const datePart = iso.split('T')[0];
+    const [year, month, day] = datePart.split('-');
+    return `${day}.${month}.${year}`;
+  };
 
   return (
     <View className="flex-1 bg-black p-4">
@@ -149,9 +155,9 @@ const TaskList = () => {
                 className="flex-1"
               >
                 <Text className="text-secondary">{task.title}</Text>
-                {task.dueDate && (
+                {task.dueDate != null && (
                   <Text className="text-sm text-gray-400">
-                    {new Date(task.dueDate).toLocaleDateString()}
+                    {formatDate(task.dueDate)}
                   </Text>
                 )}
               </TouchableOpacity>
@@ -182,9 +188,9 @@ const TaskList = () => {
             {/* Title/Details: VIEW ONLY in completed */}
             <View className="flex-1">
               <Text className="text-secondary line-through">{task.title}</Text>
-              {task.dueDate && (
+              {task.dueDate != null && (
                 <Text className="text-sm text-gray-400">
-                  {new Date(task.dueDate).toLocaleDateString()}
+                  {formatDate(task.dueDate)}
                 </Text>
               )}
             </View>

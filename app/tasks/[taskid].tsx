@@ -1,10 +1,19 @@
-
 import React, { useState, useEffect } from 'react';
-import {  View,  Text,  TextInput,  TouchableOpacity,  Alert,  ActivityIndicator,  KeyboardAvoidingView,  Platform,} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { getTaskById, updateTask } from '@/services/TaskService';
 import { Task } from '@/types/types';
+
 export default function EditTask() {
   const { taskid } = useLocalSearchParams<{ taskid: string }>();
   const router = useRouter();
@@ -18,6 +27,14 @@ export default function EditTask() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Auto-default dueDate to today on first open of picker
+  useEffect(() => {
+    if (showDatePicker && dueDate === undefined) {
+      setDueDate(new Date());
+    }
+  }, [showDatePicker]);
+
+  // Load existing task
   useEffect(() => {
     async function load() {
       try {
@@ -27,7 +44,10 @@ export default function EditTask() {
         setDescription(data.description ?? '');
         setDueDate(data.dueDate ? new Date(data.dueDate) : undefined);
       } catch (err) {
-        Alert.alert('Error', err instanceof Error ? err.message : 'Failed to load task');
+        Alert.alert(
+          'Error',
+          err instanceof Error ? err.message : 'Failed to load task'
+        );
         router.back();
       } finally {
         setLoading(false);
@@ -41,11 +61,12 @@ export default function EditTask() {
       Alert.alert('Validation', 'Title is required');
       return;
     }
+    // Prevent past-dates
     if (dueDate) {
       const today = new Date();
-      today.setHours(0,0,0,0);
+      today.setHours(0, 0, 0, 0);
       const sel = new Date(dueDate);
-      sel.setHours(0,0,0,0);
+      sel.setHours(0, 0, 0, 0);
       if (sel < today) {
         Alert.alert('Validation', 'Due date cannot be in the past');
         return;
@@ -63,7 +84,10 @@ export default function EditTask() {
       await updateTask(id, dto);
       router.back();
     } catch (err) {
-      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to update task');
+      Alert.alert(
+        'Error',
+        err instanceof Error ? err.message : 'Failed to update task'
+      );
     } finally {
       setSaving(false);
     }
@@ -112,9 +136,9 @@ export default function EditTask() {
           mode="date"
           display="default"
           minimumDate={new Date()}
-          onChange={(_, d) => {
+          onChange={(_, date) => {
             setShowDatePicker(false);
-            if (d) setDueDate(d);
+            if (date) setDueDate(date);
           }}
         />
       )}
@@ -124,10 +148,11 @@ export default function EditTask() {
         disabled={saving}
         className="bg-secondary rounded-lg py-4 items-center"
       >
-        {saving
-          ? <ActivityIndicator color="#000" />
-          : <Text className="text-primary text-lg">Save Changes</Text>
-        }
+        {saving ? (
+          <ActivityIndicator color="#000" />
+        ) : (
+          <Text className="text-primary text-lg">Save Changes</Text>
+        )}
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );

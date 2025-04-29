@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,12 +21,19 @@ const CreateTasks = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // When picker opens and no date set, default to today
+  useEffect(() => {
+    if (showDatePicker && dueDate === undefined) {
+      setDueDate(new Date());
+    }
+  }, [showDatePicker]);
+
   const onSave = async () => {
     if (!title.trim()) {
       Alert.alert('Validation', 'Title is required');
       return;
     }
-    // Past-Date Check
+    // Past-date validation
     if (dueDate) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -43,6 +50,7 @@ const CreateTasks = () => {
       const dto: CreateTaskDTO = {
         title: title.trim(),
         description: description.trim(),
+        // always defined after useEffect
         dueDate: dueDate ? dueDate.toISOString() : undefined,
       };
       await createTask(dto);
@@ -105,10 +113,11 @@ const CreateTasks = () => {
         disabled={saving}
         className="bg-secondary rounded-lg py-4 items-center"
       >
-        {saving
-          ? <ActivityIndicator color="#000" />
-          : <Text className="text-primary text-lg">Save</Text>
-        }
+        {saving ? (
+          <ActivityIndicator color="#000" />
+        ) : (
+          <Text className="text-primary text-lg">Save</Text>
+        )}
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );

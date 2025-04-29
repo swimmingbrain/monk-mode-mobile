@@ -7,17 +7,9 @@ import {
   Trash2,
   Pencil,
 } from "lucide-react-native";
-import { getTimeBlocks } from "@/services/TimeblockService";
+import { createTimeBlock, getTimeBlocks } from "@/services/TimeblockService";
 import { TimeBlock } from "@/types/types";
 import TimeblockDialog from "./TimeblockDialog";
-
-// Einfache Funktion zur Generierung einer zufälligen ID
-const generateId = () => {
-  return (
-    Math.random().toString(36).substring(2, 15) +
-    Math.random().toString(36).substring(2, 15)
-  );
-};
 
 const TimeblockList = () => {
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
@@ -35,17 +27,12 @@ const TimeblockList = () => {
 
   const fetchTimeBlocks = async () => {
     try {
-      const token = "tbd";
-      if (!token) throw new Error("No authentication token found.");
-
-      /*const data = await getTimeBlocks(token);
-
+      const data = await getTimeBlocks();
       const sortedData = data.sort(
         (a: TimeBlock, b: TimeBlock) =>
           new Date(a.date).getTime() - new Date(b.date).getTime()
       );
-
-      setTimeBlocks(sortedData);*/
+      setTimeBlocks(sortedData);
     } catch (err) {
       console.log(err);
       setError(
@@ -56,7 +43,7 @@ const TimeblockList = () => {
     }
   };
 
-  const handleSaveTimeblock = (timeblock: {
+  const handleSaveTimeblock = async (timeblock: {
     title: string;
     date: string;
     startTime: string;
@@ -64,59 +51,34 @@ const TimeblockList = () => {
     isFocus: boolean;
   }) => {
     if (editingTimeBlock) {
-      // Update existing time block
-      setTimeBlocks((prevBlocks) => {
-        const updatedBlocks = prevBlocks.map((block) =>
-          block.id === editingTimeBlock.id ? { ...block, ...timeblock } : block
-        );
-
-        // Sort the updated blocks by date and time
-        return updatedBlocks.sort((a, b) => {
-          // First sort by date
-          const dateComparison =
-            new Date(a.date).getTime() - new Date(b.date).getTime();
-          if (dateComparison !== 0) return dateComparison;
-
-          // If dates are the same, sort by start time
-          const [aStartHour, aStartMin] = a.startTime.split(":").map(Number);
-          const [bStartHour, bStartMin] = b.startTime.split(":").map(Number);
-
-          if (aStartHour !== bStartHour) return aStartHour - bStartHour;
-          return aStartMin - bStartMin;
-        });
-      });
+      setTimeBlocks((prevBlocks) =>
+        prevBlocks
+          .map((block) =>
+            block.id === editingTimeBlock.id
+              ? { ...block, ...timeblock }
+              : block
+          )
+          .sort((a, b) => sortByDateAndTime(a, b))
+      );
       setEditingTimeBlock(null);
     } else {
-      // Create a new time block with a unique ID
-      const newTimeBlock = {
-        id: generateId(),
-        ...timeblock,
-        tasks: [],
-      };
-
-      // Add the new time block to the list and sort
-      setTimeBlocks((prevBlocks) => {
-        const updatedBlocks = [...prevBlocks, newTimeBlock];
-
-        // Sort the updated blocks by date and time
-        return updatedBlocks.sort((a, b) => {
-          // First sort by date
-          const dateComparison =
-            new Date(a.date).getTime() - new Date(b.date).getTime();
-          if (dateComparison !== 0) return dateComparison;
-
-          // If dates are the same, sort by start time
-          const [aStartHour, aStartMin] = a.startTime.split(":").map(Number);
-          const [bStartHour, bStartMin] = b.startTime.split(":").map(Number);
-
-          if (aStartHour !== bStartHour) return aStartHour - bStartHour;
-          return aStartMin - bStartMin;
-        });
-      });
+      const newTimeBlock = { ...timeblock, tasks: [] };
+      const dbTimeblock = await createTimeBlock(newTimeBlock);
+      setTimeBlocks((prevBlocks) =>
+        [...prevBlocks, dbTimeblock].sort((a, b) => sortByDateAndTime(a, b))
+      );
     }
-
-    // Close the dialog
     setDialogVisible(false);
+  };
+
+  const sortByDateAndTime = (a: TimeBlock, b: TimeBlock) => {
+    const dateComparison =
+      new Date(a.date).getTime() - new Date(b.date).getTime();
+    if (dateComparison !== 0) return dateComparison;
+    const [aStartHour, aStartMin] = a.startTime.split(":").map(Number);
+    const [bStartHour, bStartMin] = b.startTime.split(":").map(Number);
+    if (aStartHour !== bStartHour) return aStartHour - bStartHour;
+    return aStartMin - bStartMin;
   };
 
   const confirmDeleteTimeBlock = (id: string, title: string) => {
@@ -124,10 +86,7 @@ const TimeblockList = () => {
       "Aktivität löschen",
       `Möchtest du "${title}" wirklich löschen?`,
       [
-        {
-          text: "Abbrechen",
-          style: "cancel",
-        },
+        { text: "Abbrechen", style: "cancel" },
         {
           text: "Löschen",
           onPress: () => handleDeleteTimeBlock(id),
@@ -161,11 +120,8 @@ const TimeblockList = () => {
   };
 
   const formatSelectedDate = () => {
-    // Check if the selected date is today
     const today = new Date();
-    const isToday = selectedDate.toDateString() === today.toDateString();
-
-    if (isToday) {
+    if (selectedDate.toDateString() === today.toDateString()) {
       return "Heute";
     } else {
       const options: Intl.DateTimeFormatOptions = {
@@ -181,14 +137,11 @@ const TimeblockList = () => {
   const getTimeBlocksForSelectedDate = () => {
     const selectedDateString = selectedDate.toISOString().split("T")[0];
     const filteredBlocks = timeBlocks.filter(
-      (block) => block.date === selectedDateString
+      (block) => block.date.startsWith(selectedDateString) // Changed to startsWith
     );
-
-    // Sort the filtered blocks by start time
     return filteredBlocks.sort((a, b) => {
       const [aStartHour, aStartMin] = a.startTime.split(":").map(Number);
       const [bStartHour, bStartMin] = b.startTime.split(":").map(Number);
-
       if (aStartHour !== bStartHour) return aStartHour - bStartHour;
       return aStartMin - bStartMin;
     });

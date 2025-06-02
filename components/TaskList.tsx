@@ -1,15 +1,17 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { Plus, CheckCircle, Circle } from "lucide-react-native";
-import { useRouter, useFocusEffect } from "expo-router";
+import { useFocusEffect } from "expo-router";
 import { getAllTasks, deleteTask, updateTask } from "@/services/TaskService";
 import { Task } from "@/types/types";
+import TaskDialog from "./TaskDialog";
 
 const TaskList = () => {
-  const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"open" | "completed">("open");
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const fetchTasks = async () => {
     try {
@@ -71,6 +73,18 @@ const TaskList = () => {
     );
   };
 
+  const handleSaveTask = (task: Task) => {
+    if (editingTask) {
+      setTasks((prev) =>
+        prev.map((t) => (t.id === task.id ? task : t))
+      );
+    } else {
+      setTasks((prev) => [...prev, task]);
+    }
+    setDialogVisible(false);
+    setEditingTask(null);
+  };
+
   if (loading) {
     return <ActivityIndicator size="large" color="#fff" />;
   }
@@ -119,7 +133,10 @@ const TaskList = () => {
       {/* + Add Task only on Open tab */}
       {activeTab === "open" && (
         <TouchableOpacity
-          onPress={() => router.push("/tasks/createTasks")}
+          onPress={() => {
+            setEditingTask(null);
+            setDialogVisible(true);
+          }}
           className="flex flex-row items-center justify-end mb-2"
         >
           <Plus color="#c1c1c1" size={24} />
@@ -144,14 +161,12 @@ const TaskList = () => {
                 <Circle size={24} color="#c1c1c1" />
               </TouchableOpacity>
 
-              {/* Title/Details: navigates to edit on press */}
+              {/* Title/Details: opens edit dialog on press */}
               <TouchableOpacity
-                onPress={() =>
-                  router.push({
-                    pathname: "/tasks/[taskid]",
-                    params: { taskid: task.id.toString() },
-                  })
-                }
+                onPress={() => {
+                  setEditingTask(task);
+                  setDialogVisible(true);
+                }}
                 className="flex-1"
               >
                 <Text className="text-secondary">{task.title}</Text>
@@ -210,6 +225,16 @@ const TaskList = () => {
           </View>
         ))
       )}
+
+      <TaskDialog
+        visible={dialogVisible}
+        onClose={() => {
+          setDialogVisible(false);
+          setEditingTask(null);
+        }}
+        onSave={handleSaveTask}
+        task={editingTask}
+      />
     </View>
   );
 };

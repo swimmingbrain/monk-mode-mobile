@@ -65,8 +65,6 @@ export async function createTimeBlock(
   timeBlock: TimeBlock
 ): Promise<TimeBlock> {
   try {
-    console.log("AAA");
-    console.log(timeBlock);
     const token = await getToken();
     if (!token) {
       throw new Error("No authentication token found");
@@ -110,10 +108,10 @@ export async function createTimeBlock(
 }
 
 export async function updateTimeBlock(
-  token: string,
   timeBlock: TimeBlock
 ): Promise<TimeBlock | null> {
   try {
+    const token = await getToken();
     const response = await fetch(
       `${API_CONFIG.BASE_URL}/api/TimeBlock/${timeBlock.id}`,
       {
@@ -155,10 +153,10 @@ export async function updateTimeBlock(
 }
 
 export async function deleteTimeBlock(
-  token: string,
   id: string
 ): Promise<void> {
   try {
+    const token = await getToken();
     const response = await fetch(`${API_CONFIG.BASE_URL}/api/TimeBlock/${id}`, {
       method: "DELETE",
       headers: {

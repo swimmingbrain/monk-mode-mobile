@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
-import { Plus, CheckCircle, Circle } from "lucide-react-native";
+import { Plus, CheckCircle, Circle, Trash2 } from "lucide-react-native";
 import { useFocusEffect } from "expo-router";
 import { getAllTasks, deleteTask, updateTask } from "@/services/TaskService";
 import { Task } from "@/types/types";
@@ -179,7 +179,7 @@ const TaskList = () => {
 
               {/* Delete */}
               <TouchableOpacity onPress={() => handleDelete(task.id)}>
-                <Text className="text-red-500">Delete</Text>
+                <Trash2 color="#c1c1c1" size={20} />
               </TouchableOpacity>
             </View>
           ))
@@ -219,7 +219,7 @@ const TaskList = () => {
                 <Text className="text-blue-400">Undo</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => handleDelete(task.id)}>
-                <Text className="text-red-500">Delete</Text>
+                <Trash2 color="#c1c1c1" size={20} />
               </TouchableOpacity>
             </View>
           </View>

@@ -139,14 +139,15 @@ const TaskList = () => {
           }}
           className="flex flex-row items-center justify-end mb-2"
         >
-          <Plus color="#c1c1c1" size={24} />
+          <Plus color="#c1c1c1" size={20} />
+          <Text className="text-secondary"> Add Task</Text>
         </TouchableOpacity>
       )}
 
       {/* Task Lists */}
       {activeTab === "open" ? (
         openTasks.length === 0 ? (
-          <Text className="text-secondary text-center">No open tasks.</Text>
+          <Text className="text-secondary text-center">no open tasks...</Text>
         ) : (
           openTasks.map((task) => (
             <View

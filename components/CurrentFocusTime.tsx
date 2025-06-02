@@ -6,9 +6,9 @@ const CurrentFocusTime = () => {
   return (
     <View className="flex gap-4">
       <View className="flex flex-row gap-2 items-center justify-between">
-        <Text className="text-xl text-secondary">Aktuelle Fokuszeiten</Text>
+        <Text className="text-xl text-secondary">Current Focus Times</Text>
         <TouchableOpacity className="flex flex-row items-center justify-end gap-2">
-          <Text className="text-secondary">alle Statistiken</Text>
+          <Text className="text-secondary">All Statistics</Text>
           <MoveRight color="#c1c1c1" size={20} />
         </TouchableOpacity>
       </View>

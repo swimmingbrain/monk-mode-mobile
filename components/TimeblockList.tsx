@@ -82,12 +82,12 @@ const TimeblockList = () => {
 
   const confirmDeleteTimeBlock = (id: string, title: string) => {
     Alert.alert(
-      "Aktivität löschen",
-      `Möchtest du "${title}" wirklich löschen?`,
+      "Delete Activity",
+      `Delete "${title}" permanently?`,
       [
-        { text: "Abbrechen", style: "cancel" },
+        { text: "Cancel", style: "cancel" },
         {
-          text: "Löschen",
+          text: "Delete",
           onPress: () => handleDeleteTimeBlock(id),
           style: "destructive",
         },
@@ -116,7 +116,7 @@ const TimeblockList = () => {
   const formatSelectedDate = () => {
     const today = new Date();
     if (selectedDate.toDateString() === today.toDateString()) {
-      return "Heute";
+      return "Today";
     } else {
       const options: Intl.DateTimeFormatOptions = {
         weekday: "long",
@@ -124,7 +124,7 @@ const TimeblockList = () => {
         month: "long",
         day: "numeric",
       };
-      return selectedDate.toLocaleDateString("de-DE", options);
+      return selectedDate.toLocaleDateString("en-US", options);
     }
   };
 
@@ -159,7 +159,7 @@ const TimeblockList = () => {
 
       {timeBlocksForToday.length === 0 ? (
         <TouchableOpacity className="flex flex-row gap-2 items-center bg-primary rounded-lg py-4 px-5">
-          <Text className="text-secondary">noch nichts geplant ...</Text>
+          <Text className="text-secondary">nothing planned yet ...</Text>
         </TouchableOpacity>
       ) : (
         <ScrollView>
@@ -183,7 +183,7 @@ const TimeblockList = () => {
                     {timeBlock.startTime} - {timeBlock.endTime}
                   </Text>
                   <Text className="text-secondary text-xs mt-1">
-                    {timeBlock.isFocus ? "Fokuszeit" : "Freizeit"}
+                    {timeBlock.isFocus ? "Focus" : "Leisure"}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -210,7 +210,7 @@ const TimeblockList = () => {
         }}
       >
         <Plus color="#c1c1c1" size={20} />
-        <Text className="text-secondary">Aktivität hinzufügen</Text>
+        <Text className="text-secondary">Add Activity</Text>
       </TouchableOpacity>
 
       <TimeblockDialog

@@ -105,9 +105,9 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   return (
     <Modal visible={visible} transparent={true} onRequestClose={onClose}>
       <View className="flex-1 bg-black/50 justify-center items-center">
-        <View className="bg-white rounded-lg p-5 w-[90%] max-w-[400px]">
+        <View style={{ backgroundColor: '#1e1e1e' }} className="rounded-lg p-5 w-[90%] max-w-[400px]">
           <View className="flex-row justify-between items-center mb-5">
-            <Text className="text-xl font-bold text-primary">
+            <Text className="text-xl font-bold" style={{ color: '#fff' }}>
               {task ? 'Edit Task' : 'New Task'}
             </Text>
             <TouchableOpacity onPress={onClose}>
@@ -116,37 +116,40 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
           </View>
 
           <View className="mb-4">
-            <Text className="mb-1 text-primary">Title</Text>
+            <Text className="mb-1" style={{ color: '#fff' }}>Title</Text>
             <TextInput
-              className="border border-gray-300 rounded-md p-3 text-primary"
+              style={{ backgroundColor: '#000', color: '#fff', borderRadius: 8 }}
+              className="p-3 mt-1 mb-1"
               value={title}
               onChangeText={setTitle}
               placeholder="Enter task title"
-              placeholderTextColor="#c1c1c1"
+              placeholderTextColor="#888"
             />
           </View>
 
           <View className="mb-4">
-            <Text className="mb-1 text-primary">Description (optional)</Text>
+            <Text className="mb-1" style={{ color: '#fff' }}>Description (optional)</Text>
             <TextInput
-              className="border border-gray-300 rounded-md p-3 text-primary"
+              style={{ backgroundColor: '#000', color: '#fff', borderRadius: 8 }}
+              className="p-3 mt-1 mb-1"
               value={description}
               onChangeText={setDescription}
               placeholder="Enter task description"
-              placeholderTextColor="#c1c1c1"
+              placeholderTextColor="#888"
               multiline
             />
           </View>
 
           <View className="mb-4">
-            <Text className="mb-1 text-primary">Due Date (optional)</Text>
+            <Text className="mb-1" style={{ color: '#fff' }}>Due Date (optional)</Text>
             <TouchableOpacity
-              className="flex-row items-center border border-gray-300 rounded-md p-3"
+              style={{ backgroundColor: '#000', borderRadius: 8}}
+              className="flex-row items-center p-3 mt-1"
               onPress={() => setShowDatePicker(true)}
             >
               <Calendar color="#c1c1c1" size={20} className="mr-2" />
-              <Text className={dueDate ? "text-primary flex-1" : "text-secondary flex-1"}>
-                {dueDate ? dueDate.toLocaleDateString() : 'Select due date'}
+              <Text style={{ color: dueDate ? '#fff' : '#888' }} className="flex-1">
+                {dueDate ? dueDate.toLocaleDateString() : '  Select due date'}
               </Text>
             </TouchableOpacity>
             {showDatePicker && (
@@ -164,14 +167,15 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
           </View>
 
           <TouchableOpacity
-            className="bg-primary rounded-md p-4 items-center mt-4"
+            style={{ backgroundColor: '#fff', borderRadius: 8 }}
+            className="p-4 items-center mt-4"
             onPress={handleSave}
             disabled={saving}
           >
             {saving ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color="#000" />
             ) : (
-              <Text className="text-white font-bold">
+              <Text style={{ color: '#000', fontWeight: 'bold' }}>
                 {task ? 'Update' : 'Save'}
               </Text>
             )}

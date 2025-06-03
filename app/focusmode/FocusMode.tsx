@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { updateXP } from "@/services/profile";
+import { updateDailyStatistics } from "@/services/statistics";
 import type { AppStateStatus } from 'react-native';
 
 const FOCUS_MODE_SCREEN_LOCK_THRESHOLD_MS = 25; // Your observed threshold for screen lock
@@ -133,16 +134,24 @@ const FocusMode = () => {
     setIsRunning(false); // Stop the timer and XP gain immediately
 
     try {
+      // Update XP
       if (xp > 0) {
         const response = await updateXP(xp);
         console.log("XP updated successfully:", response);
-      } else {
-        console.log("No XP to update.");
       }
+
+      // Update daily statistics
+      await updateDailyStatistics({
+        id: 0, // This will be ignored by the backend
+        userId: "", // This will be set by the backend
+        date: new Date().toISOString(),
+        totalFocusTime: timer
+      });
+
       router.push("/");
     } catch (error: any) {
-      console.error("Failed to update XP:", error.message);
-      Alert.alert("Error", "Failed to save XP. Please try again.");
+      console.error("Failed to update data:", error.message);
+      Alert.alert("Error", "Failed to save data. Please try again.");
     } finally {
       setIsGivingUp(false);
     }

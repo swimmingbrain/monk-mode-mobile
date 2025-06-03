@@ -12,6 +12,7 @@ import { router } from "expo-router";
 import { removeToken } from "@/services/auth";
 import { getUserProfile } from "@/services/profile";
 import { getFriends } from "@/services/friends";
+import { getDailyStatistics } from "@/services/statistics";
 import { UserProfile, Friendship } from "@/types/types";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -20,6 +21,17 @@ const Profile = () => {
   const [friends, setFriends] = useState<Friendship[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [statistics, setStatistics] = useState<{
+    today: number;
+    week: number;
+    allTime: number;
+    completedTasks: number;
+  }>({
+    today: 0,
+    week: 0,
+    allTime: 0,
+    completedTasks: 0
+  });
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -52,8 +64,29 @@ const Profile = () => {
       }
     };
 
+    const loadStatistics = async () => {
+      try {
+        const stats = await getDailyStatistics(new Date());
+        if (stats.length > 0) {
+          const today = stats[0].totalFocusTime;
+          const week = stats.reduce((acc, curr) => acc + curr.totalFocusTime, 0);
+          const allTime = stats.reduce((acc, curr) => acc + curr.totalFocusTime, 0);
+          
+          setStatistics({
+            today,
+            week,
+            allTime,
+            completedTasks: 0 // This will be implemented when tasks are completed
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load statistics:", error);
+      }
+    };
+
     loadProfile();
     loadFriends();
+    loadStatistics();
   }, []);
 
   const handleLogout = async () => {
@@ -63,6 +96,12 @@ const Profile = () => {
     } catch (error) {
       console.error("Logout error:", error);
     }
+  };
+
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `${hours}h ${minutes}m`;
   };
 
   return (
@@ -104,32 +143,40 @@ const Profile = () => {
           </View>
 
           {/* Statistics Section */}
-          <View>
+          <View className="bg-secondary/10 p-4 rounded-lg">
             <Text className="text-secondary text-xl font-bold mb-4">
               Focus Statistics
             </Text>
             <View className="flex-row flex-wrap justify-between">
-              <View className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4">
+              <View className="w-[48%] bg-primary/10 p-4 rounded-lg mb-4">
                 <Text className="text-secondary/70 text-sm">
                   Today's Focus Time
                 </Text>
-                <Text className="text-secondary text-2xl font-bold">0h 0m</Text>
+                <Text className="text-secondary text-2xl font-bold">
+                  {formatTime(statistics.today)}
+                </Text>
               </View>
-              <View className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4">
+              <View className="w-[48%] bg-primary/10 p-4 rounded-lg mb-4">
                 <Text className="text-secondary/70 text-sm">This Week</Text>
-                <Text className="text-secondary text-2xl font-bold">0h 0m</Text>
+                <Text className="text-secondary text-2xl font-bold">
+                  {formatTime(statistics.week)}
+                </Text>
               </View>
-              <View className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4">
+              <View className="w-[48%] bg-primary/10 p-4 rounded-lg mb-4">
                 <Text className="text-secondary/70 text-sm">
                   All Time Focus
                 </Text>
-                <Text className="text-secondary text-2xl font-bold">0h 0m</Text>
+                <Text className="text-secondary text-2xl font-bold">
+                  {formatTime(statistics.allTime)}
+                </Text>
               </View>
-              <View className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4">
+              <View className="w-[48%] bg-primary/10 p-4 rounded-lg mb-4">
                 <Text className="text-secondary/70 text-sm">
                   Completed Tasks
                 </Text>
-                <Text className="text-secondary text-2xl font-bold">0</Text>
+                <Text className="text-secondary text-2xl font-bold">
+                  {statistics.completedTasks}
+                </Text>
               </View>
             </View>
           </View>

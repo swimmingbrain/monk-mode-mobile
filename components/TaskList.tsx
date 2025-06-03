@@ -1,15 +1,17 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
-import { Plus, CheckCircle, Circle } from "lucide-react-native";
-import { useRouter, useFocusEffect } from "expo-router";
+import { Plus, CheckCircle, Circle, Trash2 } from "lucide-react-native";
+import { useFocusEffect } from "expo-router";
 import { getAllTasks, deleteTask, updateTask } from "@/services/TaskService";
 import { Task } from "@/types/types";
+import TaskDialog from "./TaskDialog";
 
 const TaskList = () => {
-  const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"open" | "completed">("open");
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const fetchTasks = async () => {
     try {
@@ -71,6 +73,18 @@ const TaskList = () => {
     );
   };
 
+  const handleSaveTask = (task: Task) => {
+    if (editingTask) {
+      setTasks((prev) =>
+        prev.map((t) => (t.id === task.id ? task : t))
+      );
+    } else {
+      setTasks((prev) => [...prev, task]);
+    }
+    setDialogVisible(false);
+    setEditingTask(null);
+  };
+
   if (loading) {
     return <ActivityIndicator size="large" color="#fff" />;
   }
@@ -119,17 +133,21 @@ const TaskList = () => {
       {/* + Add Task only on Open tab */}
       {activeTab === "open" && (
         <TouchableOpacity
-          onPress={() => router.push("/tasks/createTasks")}
+          onPress={() => {
+            setEditingTask(null);
+            setDialogVisible(true);
+          }}
           className="flex flex-row items-center justify-end mb-2"
         >
-          <Plus color="#c1c1c1" size={24} />
+          <Plus color="#c1c1c1" size={20} />
+          <Text className="text-secondary"> Add Task</Text>
         </TouchableOpacity>
       )}
 
       {/* Task Lists */}
       {activeTab === "open" ? (
         openTasks.length === 0 ? (
-          <Text className="text-secondary text-center">No open tasks.</Text>
+          <Text className="text-secondary text-center">no open tasks...</Text>
         ) : (
           openTasks.map((task) => (
             <View
@@ -144,14 +162,12 @@ const TaskList = () => {
                 <Circle size={24} color="#c1c1c1" />
               </TouchableOpacity>
 
-              {/* Title/Details: navigates to edit on press */}
+              {/* Title/Details: opens edit dialog on press */}
               <TouchableOpacity
-                onPress={() =>
-                  router.push({
-                    pathname: "/tasks/[taskid]",
-                    params: { taskid: task.id.toString() },
-                  })
-                }
+                onPress={() => {
+                  setEditingTask(task);
+                  setDialogVisible(true);
+                }}
                 className="flex-1"
               >
                 <Text className="text-secondary">{task.title}</Text>
@@ -164,7 +180,7 @@ const TaskList = () => {
 
               {/* Delete */}
               <TouchableOpacity onPress={() => handleDelete(task.id)}>
-                <Text className="text-red-500">Delete</Text>
+                <Trash2 color="#c1c1c1" size={20} />
               </TouchableOpacity>
             </View>
           ))
@@ -204,12 +220,22 @@ const TaskList = () => {
                 <Text className="text-blue-400">Undo</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => handleDelete(task.id)}>
-                <Text className="text-red-500">Delete</Text>
+                <Trash2 color="#c1c1c1" size={20} />
               </TouchableOpacity>
             </View>
           </View>
         ))
       )}
+
+      <TaskDialog
+        visible={dialogVisible}
+        onClose={() => {
+          setDialogVisible(false);
+          setEditingTask(null);
+        }}
+        onSave={handleSaveTask}
+        task={editingTask}
+      />
     </View>
   );
 };

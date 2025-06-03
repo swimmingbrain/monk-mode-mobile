@@ -38,6 +38,7 @@ export default function RootLayout() {
       <Stack.Screen name="tasks/createTasks"  options={{ title: "New Task" }}/>
       <Stack.Screen name="friends/Friends" options={{ headerShown: false }} />
       <Stack.Screen name="profile/Profile" options={{ headerShown: false }} />
+      <Stack.Screen name="statistics/Statistics" options={{ headerShown: false }} />
     </Stack>
   );
 }

@@ -6,7 +6,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react-native";
-import { createTimeBlock, getTimeBlocks } from "@/services/TimeblockService";
+import { createTimeBlock, deleteTimeBlock, getTimeBlocks, updateTimeBlock } from "@/services/TimeblockService";
 import { TimeBlock } from "@/types/types";
 import TimeblockDialog from "./TimeblockDialog";
 
@@ -42,13 +42,7 @@ const TimeblockList = () => {
     }
   };
 
-  const handleSaveTimeblock = async (timeblock: {
-    title: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    isFocus: boolean;
-  }) => {
+  const handleSaveTimeblock = async (timeblock: TimeBlock) => {
     if (editingTimeBlock) {
       setTimeBlocks((prevBlocks) =>
         prevBlocks
@@ -57,8 +51,16 @@ const TimeblockList = () => {
               ? { ...block, ...timeblock }
               : block
           )
-          .sort((a, b) => sortByDateAndTime(a, b))
+          .sort((a, b) => sortByDateAndTime(a, b))  
       );
+
+      try {
+          console.log(timeblock)
+          await updateTimeBlock(timeblock);
+      } catch (ex) {
+        console.log(ex)
+      }
+
       setEditingTimeBlock(null);
     } else {
       const newTimeBlock = { ...timeblock, tasks: [] };
@@ -80,7 +82,7 @@ const TimeblockList = () => {
     return aStartMin - bStartMin;
   };
 
-  const confirmDeleteTimeBlock = (id: string, title: string) => {
+  const confirmDeleteTimeBlock = async (id: string, title: string) => {
     Alert.alert(
       "Delete Activity",
       `Delete "${title}" permanently?`,
@@ -95,10 +97,17 @@ const TimeblockList = () => {
     );
   };
 
-  const handleDeleteTimeBlock = (id: string) => {
+  const handleDeleteTimeBlock = async(id: string) => {
     setTimeBlocks((prevBlocks) =>
       prevBlocks.filter((block) => block.id !== id)
     );
+
+    try
+    {
+      await deleteTimeBlock(id);
+    } catch (ex) {
+      console.log(ex)
+    }
   };
 
   const navigateToPreviousDay = () => {

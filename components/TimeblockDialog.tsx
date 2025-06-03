@@ -16,13 +16,7 @@ import { TimeBlock } from "@/types/types";
 interface TimeblockDialogProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (timeblock: {
-    title: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    isFocus: boolean;
-  }) => void;
+  onSave: (timeblock: TimeBlock) => void;
   timeBlock?: TimeBlock | null;
 }
 
@@ -149,7 +143,11 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
       finalTitle = `${title} (overnight)`;
     }
 
-    onSave({ title: finalTitle, date, startTime, endTime, isFocus });
+    const timeBlockToSave:TimeBlock = {
+      id:timeBlock?.id, title: finalTitle, date, startTime, endTime, isFocus, tasks: []
+    }
+
+    onSave(timeBlockToSave);
     // Reset form
     setTitle("");
     setDate("");
@@ -301,7 +299,7 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
                   onPress={() => setIsFocus(false)}
                 >
                   <Text
-                    className={`font-medium ${!isFocus ? "text-white" : "text-gray-600"}`} //needs fixing
+                    className={`font-medium ${!isFocus ? "text-white" : "text-gray-600"}`}
                   >
                     Leisure
                   </Text>
@@ -311,7 +309,7 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
                   onPress={() => setIsFocus(true)}
                 >
                   <Text
-                    className={`font-medium ${isFocus ? "text-white" : "text-gray-600"}`} //needs fixing
+                    className={`font-medium ${isFocus ? "text-white" : "text-gray-600"}`}
                   >
                     Focus
                   </Text>

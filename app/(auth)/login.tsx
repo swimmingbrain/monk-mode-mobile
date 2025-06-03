@@ -14,8 +14,16 @@ export default function Login() {
       setError("Username is required");
       return false;
     }
+    if (username.includes(" ")) {
+      setError("Username cannot contain spaces");
+      return false;
+    }
     if (!password.trim()) {
       setError("Password is required");
+      return false;
+    }
+    if (password.includes(" ")) {
+      setError("Password cannot contain spaces");
       return false;
     }
     return true;
@@ -80,6 +88,7 @@ export default function Login() {
             setError("");
           }}
           secureTextEntry
+          autoCapitalize="none"
         />
 
         <TouchableOpacity

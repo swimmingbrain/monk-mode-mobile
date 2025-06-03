@@ -16,16 +16,46 @@ export default function Register() {
       setError("Username is required");
       return false;
     }
+    if (username.includes(" ")) {
+      setError("Username cannot contain spaces");
+      return false;
+    }
+    if (username.length < 3) {
+      setError("Username must be at least 3 characters long");
+      return false;
+    }
     if (!email.trim()) {
       setError("Email is required");
+      return false;
+    }
+    if (email.includes(" ")) {
+      setError("Email cannot contain spaces");
+      return false;
+    }
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address");
       return false;
     }
     if (!password.trim()) {
       setError("Password is required");
       return false;
     }
+    if (password.includes(" ")) {
+      setError("Password cannot contain spaces");
+      return false;
+    }
+    /*if (password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      return false;
+    }*/
     if (!confirmPassword.trim()) {
       setError("Please confirm your password");
+      return false;
+    }
+    if (confirmPassword.includes(" ")) {
+      setError("Confirm password cannot contain spaces");
       return false;
     }
     if (password !== confirmPassword) {
@@ -105,6 +135,7 @@ export default function Register() {
             setError("");
           }}
           secureTextEntry
+          autoCapitalize="none"
         />
 
         <TextInput
@@ -117,6 +148,7 @@ export default function Register() {
             setError("");
           }}
           secureTextEntry
+          autoCapitalize="none"
         />
 
         <TouchableOpacity

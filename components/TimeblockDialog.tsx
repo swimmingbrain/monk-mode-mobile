@@ -112,9 +112,10 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
     if (endDate <= startDate) {
       endDate.setDate(endDate.getDate() + 1);
     }
-    
+
     // Calculate the duration in hours
-    const durationHours = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
+    const durationHours =
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
 
     // Check if the duration is reasonable (e.g. not more than 24 hours)
     if (durationHours > 24) {
@@ -143,9 +144,15 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
       finalTitle = `${title} (overnight)`;
     }
 
-    const timeBlockToSave:TimeBlock = {
-      id:timeBlock?.id, title: finalTitle, date, startTime, endTime, isFocus, tasks: []
-    }
+    const timeBlockToSave: TimeBlock = {
+      id: timeBlock?.id,
+      title: finalTitle,
+      date,
+      startTime,
+      endTime,
+      isFocus,
+      tasks: [],
+    };
 
     onSave(timeBlockToSave);
     // Reset form
@@ -192,9 +199,12 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
   return (
     <Modal visible={visible} transparent={true} onRequestClose={onClose}>
       <View className="flex-1 bg-black/50 justify-center items-center">
-        <View style={{ backgroundColor: '#1e1e1e' }} className="rounded-lg p-5 w-[90%] max-w-[400px]">
+        <View
+          style={{ backgroundColor: "#1e1e1e" }}
+          className="rounded-lg p-5 w-[90%] max-w-[400px]"
+        >
           <View className="flex-row justify-between items-center mb-5">
-            <Text className="text-xl font-bold" style={{ color: '#fff' }}>
+            <Text className="text-xl font-bold" style={{ color: "#fff" }}>
               {timeBlock ? "Update Activity" : "New Activity"}
             </Text>
             <TouchableOpacity onPress={onClose}>
@@ -203,9 +213,15 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
           </View>
 
           <View className="mb-4">
-            <Text className="mb-1" style={{ color: '#fff' }}>Title</Text>
+            <Text className="mb-1" style={{ color: "#fff" }}>
+              Title
+            </Text>
             <TextInput
-              style={{ backgroundColor: '#000', color: '#fff', borderRadius: 8 }}
+              style={{
+                backgroundColor: "#000",
+                color: "#fff",
+                borderRadius: 8,
+              }}
               className="p-3 mt-1 mb-1"
               value={title}
               onChangeText={setTitle}
@@ -215,15 +231,20 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
           </View>
 
           <View className="mb-4">
-            <Text className="mb-1" style={{ color: '#fff' }}>Date</Text>
+            <Text className="mb-1" style={{ color: "#fff" }}>
+              Date
+            </Text>
             <TouchableOpacity
-              style={{ backgroundColor: '#000', borderRadius: 8 }}
-              className="flex-row items-center p-3 mt-1"
+              style={{ backgroundColor: "#000", borderRadius: 8 }}
+              className="flex-row items-center p-3 mt-1 gap-2"
               onPress={() => setShowDatePicker(true)}
             >
               <Calendar color="#c1c1c1" size={20} className="mr-2" />
-              <Text style={{ color: date ? '#fff' : '#888' }} className="flex-1">
-                {date || "  Select date"}
+              <Text
+                style={{ color: date ? "#fff" : "#888" }}
+                className="flex-1"
+              >
+                {date || "Select date"}
               </Text>
             </TouchableOpacity>
             {showDatePicker && (
@@ -238,15 +259,20 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
 
           <View className="flex-row justify-between mb-4">
             <View className="flex-1 mr-2">
-              <Text className="mb-1" style={{ color: '#fff' }}>Start Time</Text>
+              <Text className="mb-1" style={{ color: "#fff" }}>
+                Start Time
+              </Text>
               <TouchableOpacity
-                style={{ backgroundColor: '#000', borderRadius: 8 }}
-                className="flex-row items-center p-3 mt-1"
+                style={{ backgroundColor: "#000", borderRadius: 8 }}
+                className="flex-row items-center p-3 mt-1 gap-2"
                 onPress={() => setShowStartTimePicker(true)}
               >
                 <Clock color="#c1c1c1" size={20} className="mr-2" />
-                <Text style={{ color: startTime ? '#fff' : '#888' }} className="flex-1">
-                  {startTime || "  Select time"}
+                <Text
+                  style={{ color: startTime ? "#fff" : "#888" }}
+                  className="flex-1"
+                >
+                  {startTime || "Select time"}
                 </Text>
               </TouchableOpacity>
               {showStartTimePicker && (
@@ -260,15 +286,20 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
             </View>
 
             <View className="flex-1 ml-2">
-              <Text className="mb-1" style={{ color: '#fff' }}>End Time</Text>
+              <Text className="mb-1" style={{ color: "#fff" }}>
+                End Time
+              </Text>
               <TouchableOpacity
-                style={{ backgroundColor: '#000', borderRadius: 8 }}
-                className="flex-row items-center p-3 mt-1"
+                style={{ backgroundColor: "#000", borderRadius: 8 }}
+                className="flex-row items-center p-3 mt-1 gap-2"
                 onPress={() => setShowEndTimePicker(true)}
               >
                 <Clock color="#c1c1c1" size={20} className="mr-2" />
-                <Text style={{ color: endTime ? '#fff' : '#888' }} className="flex-1">
-                  {endTime || "  Select time"}
+                <Text
+                  style={{ color: endTime ? "#fff" : "#888" }}
+                  className="flex-1"
+                >
+                  {endTime || "Select time"}
                 </Text>
               </TouchableOpacity>
               {showEndTimePicker && (
@@ -282,34 +313,41 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
             </View>
           </View>
 
-          <View className="mb-4">
-            <Text className="mb-1" style={{ color: '#fff' }}></Text>
-            <View className="relative h-12 bg-gray-300 rounded-full overflow-hidden">
+          <View className="my-4">
+            <View className="relative h-12 rounded-full overflow-hidden">
               <View
-                className="absolute border border-gray-300 h-full bg-black transition-all duration-400 ease-in-out"
+                className="absolute border border-gray-300 bg-black h-full transition-all duration-400 ease-in-out"
                 style={{
                   width: "50%",
                   left: isFocus ? "50%" : "0%",
                   borderRadius: 9999,
                 }}
               />
-              <View className="absolute inset-0 flex-row">
+              <View className="absolute inset-0 flex-row bg-black">
                 <TouchableOpacity
-                  className="flex-1 items-center justify-center z-10"
+                  className={`flex-1 items-center justify-center z-10 ${
+                    !isFocus ? "bg-gray-300" : "bg-black"
+                  }`}
                   onPress={() => setIsFocus(false)}
                 >
                   <Text
-                    className={`font-medium ${!isFocus ? "text-white" : "text-gray-600"}`}
+                    className={`font-medium ${
+                      !isFocus ? "text-black" : "text-gray-400"
+                    }`}
                   >
                     Leisure
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className="flex-1 items-center justify-center z-10"
+                  className={`flex-1 items-center justify-center z-10 ${
+                    isFocus ? "bg-gray-300" : "bg-black"
+                  }`}
                   onPress={() => setIsFocus(true)}
                 >
                   <Text
-                    className={`font-medium ${isFocus ? "text-white" : "text-gray-600"}`}
+                    className={`font-medium ${
+                      isFocus ? "text-black" : "text-gray-400"
+                    }`}
                   >
                     Focus
                   </Text>
@@ -319,11 +357,10 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
           </View>
 
           <TouchableOpacity
-            style={{ backgroundColor: '#fff', borderRadius: 8 }}
-            className="p-4 items-center mt-4"
+            className="p-4 items-center mt-4 rounded-lg bg-gray-300"
             onPress={handleSave}
           >
-            <Text style={{ color: '#000', fontWeight: 'bold' }}>
+            <Text className="text-black font-bold">
               {timeBlock ? "Update" : "Save"}
             </Text>
           </TouchableOpacity>

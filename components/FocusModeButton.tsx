@@ -16,7 +16,7 @@ const FocusModeButton = () => {
       className="flex flex-row gap-2 items-center bg-secondary rounded-lg py-4 px-5"
     >
       <Target color="#212121" size={24} />
-      <Text className="text-primary font-semibold">Fokusmodus starten</Text>
+      <Text className="text-primary font-semibold">Start Focus Mode</Text>
     </TouchableOpacity>
   );
 };

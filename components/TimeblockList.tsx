@@ -5,7 +5,6 @@ import {
   ChevronRight,
   Plus,
   Trash2,
-  Pencil,
 } from "lucide-react-native";
 import { createTimeBlock, getTimeBlocks } from "@/services/TimeblockService";
 import { TimeBlock } from "@/types/types";
@@ -83,12 +82,12 @@ const TimeblockList = () => {
 
   const confirmDeleteTimeBlock = (id: string, title: string) => {
     Alert.alert(
-      "Aktivität löschen",
-      `Möchtest du "${title}" wirklich löschen?`,
+      "Delete Activity",
+      `Delete "${title}" permanently?`,
       [
-        { text: "Abbrechen", style: "cancel" },
+        { text: "Cancel", style: "cancel" },
         {
-          text: "Löschen",
+          text: "Delete",
           onPress: () => handleDeleteTimeBlock(id),
           style: "destructive",
         },
@@ -100,11 +99,6 @@ const TimeblockList = () => {
     setTimeBlocks((prevBlocks) =>
       prevBlocks.filter((block) => block.id !== id)
     );
-  };
-
-  const handleEditTimeBlock = (timeBlock: TimeBlock) => {
-    setEditingTimeBlock(timeBlock);
-    setDialogVisible(true);
   };
 
   const navigateToPreviousDay = () => {
@@ -122,7 +116,7 @@ const TimeblockList = () => {
   const formatSelectedDate = () => {
     const today = new Date();
     if (selectedDate.toDateString() === today.toDateString()) {
-      return "Heute";
+      return "Today";
     } else {
       const options: Intl.DateTimeFormatOptions = {
         weekday: "long",
@@ -130,14 +124,14 @@ const TimeblockList = () => {
         month: "long",
         day: "numeric",
       };
-      return selectedDate.toLocaleDateString("de-DE", options);
+      return selectedDate.toLocaleDateString("en-US", options);
     }
   };
 
   const getTimeBlocksForSelectedDate = () => {
     const selectedDateString = selectedDate.toISOString().split("T")[0];
     const filteredBlocks = timeBlocks.filter(
-      (block) => block.date.startsWith(selectedDateString) // Changed to startsWith
+      (block) => block.date.startsWith(selectedDateString)
     );
     return filteredBlocks.sort((a, b) => {
       const [aStartHour, aStartMin] = a.startTime.split(":").map(Number);
@@ -165,7 +159,7 @@ const TimeblockList = () => {
 
       {timeBlocksForToday.length === 0 ? (
         <TouchableOpacity className="flex flex-row gap-2 items-center bg-primary rounded-lg py-4 px-5">
-          <Text className="text-secondary">noch nichts geplant ...</Text>
+          <Text className="text-secondary">nothing planned yet ...</Text>
         </TouchableOpacity>
       ) : (
         <ScrollView>
@@ -174,34 +168,35 @@ const TimeblockList = () => {
               key={timeBlock.id}
               className="bg-primary rounded-lg py-4 px-5 mb-2 flex-row justify-between items-center"
             >
-              <View className="flex-1">
-                <Text className="text-secondary font-medium">
-                  {timeBlock.title}
-                </Text>
-                <Text className="text-secondary text-sm">
-                  {timeBlock.startTime} - {timeBlock.endTime}
-                </Text>
-                <Text className="text-secondary text-xs mt-1">
-                  {timeBlock.isFocus ? "Fokuszeit" : "Freizeit"}
-                </Text>
-              </View>
-              <View className="flex-row">
-                <TouchableOpacity
-                  onPress={() => handleEditTimeBlock(timeBlock)}
-                  className="p-2"
-                >
-                  <Pencil color="#c1c1c1" size={20} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() =>
-                    timeBlock.id &&
-                    confirmDeleteTimeBlock(timeBlock.id, timeBlock.title)
-                  }
-                  className="p-2"
-                >
-                  <Trash2 color="#c1c1c1" size={20} />
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                onPress={() => {
+                  setEditingTimeBlock(timeBlock);
+                  setDialogVisible(true);
+                }}
+                className="flex-1"
+              >
+                <View>
+                  <Text className="text-secondary font-medium">
+                    {timeBlock.title}
+                  </Text>
+                  <Text className="text-secondary text-sm">
+                    {timeBlock.startTime} - {timeBlock.endTime}
+                  </Text>
+                  <Text className="text-secondary text-xs mt-1">
+                    {timeBlock.isFocus ? "Focus" : "Leisure"}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() =>
+                  timeBlock.id &&
+                  confirmDeleteTimeBlock(timeBlock.id, timeBlock.title)
+                }
+                className="p-2"
+              >
+                <Trash2 color="#c1c1c1" size={20} />
+              </TouchableOpacity>
             </View>
           ))}
         </ScrollView>
@@ -215,7 +210,7 @@ const TimeblockList = () => {
         }}
       >
         <Plus color="#c1c1c1" size={20} />
-        <Text className="text-secondary">Aktivität hinzufügen</Text>
+        <Text className="text-secondary">Add Activity</Text>
       </TouchableOpacity>
 
       <TimeblockDialog

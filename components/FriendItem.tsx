@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Friendship } from '@/services/friendship';
+import { router } from 'expo-router';
 
 interface FriendItemProps {
   friend: Friendship;
@@ -13,8 +14,18 @@ const FriendItem: React.FC<FriendItemProps> = ({
   onRemove,
   isLoading 
 }) => {
+  const handlePress = () => {
+    router.push({
+      pathname: `/friend/${friend.friendId}`,
+      params: { username: friend.friendUsername }
+    });
+  };
+
   return (
-    <View className="bg-secondary/10 p-4 rounded-lg mb-4">
+    <TouchableOpacity 
+      className="bg-secondary/10 p-4 rounded-lg mb-4"
+      onPress={handlePress}
+    >
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center space-x-8">
           <View className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
@@ -37,13 +48,16 @@ const FriendItem: React.FC<FriendItemProps> = ({
         ) : (
           <TouchableOpacity
             className="bg-red-400/15 px-3 py-1 rounded"
-            onPress={() => onRemove(friend.id)}
+            onPress={(e) => {
+              e.stopPropagation();
+              onRemove(friend.id);
+            }}
           >
             <Text className="text-red-400/60 font-medium">Remove</Text>
           </TouchableOpacity>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

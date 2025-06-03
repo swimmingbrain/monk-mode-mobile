@@ -6,9 +6,12 @@ export interface DailyStatisticsDTO {
   userId: string;
   date: string;
   totalFocusTime: number;
+  username?: string;
+  level?: number;
+  xp?: number;
 }
 
-export const getDailyStatistics = async (date?: Date): Promise<DailyStatisticsDTO[]> => {
+export const getDailyStatistics = async (date?: Date, friendId?: string): Promise<DailyStatisticsDTO[]> => {
   try {
     const token = await getToken();
     if (!token) {
@@ -16,10 +19,12 @@ export const getDailyStatistics = async (date?: Date): Promise<DailyStatisticsDT
     }
 
     const url = new URL(`${API_CONFIG.BASE_URL}/api/DailyStatistics`);
-    // Remove date filtering to get all statistics
-    // if (date) {
-    //   url.searchParams.append('date', date.toISOString());
-    // }
+    if (friendId) {
+      url.searchParams.append('friendId', friendId);
+    }
+    if (date) {
+      url.searchParams.append('date', date.toISOString());
+    }
 
     console.log('Fetching statistics from:', url.toString());
 
@@ -32,6 +37,10 @@ export const getDailyStatistics = async (date?: Date): Promise<DailyStatisticsDT
     });
 
     if (!response.ok) {
+      if (response.status === 500) {
+        console.log('Statistics fetch returned 500, returning empty array');
+        return [];
+      }
       const errorText = await response.text();
       console.error('Statistics API error:', {
         status: response.status,
@@ -46,7 +55,7 @@ export const getDailyStatistics = async (date?: Date): Promise<DailyStatisticsDT
     return data;
   } catch (error) {
     console.error('Error fetching daily statistics:', error);
-    throw error;
+    return [];
   }
 };
 

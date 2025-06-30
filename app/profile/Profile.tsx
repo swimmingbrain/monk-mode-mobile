@@ -205,9 +205,13 @@ const Profile = () => {
             ) : (
               <View className="flex-row flex-wrap">
                 {friends.slice(0, 4).map((friend) => (
-                  <View
+                  <TouchableOpacity
                     key={friend.id}
                     className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4 mr-[4%]"
+                    onPress={() => router.push({
+                      pathname: `/friend/${friend.friendId}`,
+                      params: { username: friend.friendUsername }
+                    })}
                   >
                     <View className="flex-row items-center space-x-6">
                       <View className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center">
@@ -219,7 +223,7 @@ const Profile = () => {
                         {friend.friendUsername}
                       </Text>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 ))}
                 {friends.length > 4 && (
                   <View className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4 mr-[4%] items-center justify-center">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,11 +8,11 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
-} from 'react-native';
-import { X, Calendar } from 'lucide-react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Task } from '@/types/types';
-import { createTask, updateTask } from '@/services/TaskService';
+} from "react-native";
+import { X, Calendar } from "lucide-react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Task } from "@/types/types";
+import { createTask, updateTask } from "@/services/TaskService";
 
 interface TaskDialogProps {
   visible: boolean;
@@ -27,8 +27,8 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   onSave,
   task,
 }) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -37,12 +37,12 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   useEffect(() => {
     if (task) {
       setTitle(task.title);
-      setDescription(task.description ?? '');
+      setDescription(task.description ?? "");
       setDueDate(task.dueDate ? new Date(task.dueDate) : undefined);
     } else {
       // Reset form when creating new
-      setTitle('');
-      setDescription('');
+      setTitle("");
+      setDescription("");
       setDueDate(undefined);
     }
   }, [task, visible]);
@@ -56,7 +56,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
 
   const validateForm = () => {
     if (!title.trim()) {
-      Alert.alert('Validation', 'Title is required');
+      Alert.alert("Validation", "Title is required");
       return false;
     }
     // Prevent past-dates
@@ -66,7 +66,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       const sel = new Date(dueDate);
       sel.setHours(0, 0, 0, 0);
       if (sel < today) {
-        Alert.alert('Validation', 'Due date cannot be in the past');
+        Alert.alert("Validation", "Due date cannot be in the past");
         return false;
       }
     }
@@ -96,7 +96,10 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       }
       onClose();
     } catch (error) {
-      Alert.alert('Error', error instanceof Error ? error.message : 'Failed to save task');
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Failed to save task"
+      );
     } finally {
       setSaving(false);
     }
@@ -105,10 +108,13 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   return (
     <Modal visible={visible} transparent={true} onRequestClose={onClose}>
       <View className="flex-1 bg-black/50 justify-center items-center">
-        <View style={{ backgroundColor: '#1e1e1e' }} className="rounded-lg p-5 w-[90%] max-w-[400px]">
+        <View
+          style={{ backgroundColor: "#1e1e1e" }}
+          className="rounded-lg p-5 w-[90%] max-w-[400px]"
+        >
           <View className="flex-row justify-between items-center mb-5">
-            <Text className="text-xl font-bold" style={{ color: '#fff' }}>
-              {task ? 'Edit Task' : 'New Task'}
+            <Text className="text-xl font-bold" style={{ color: "#fff" }}>
+              {task ? "Edit Task" : "Add Task"}
             </Text>
             <TouchableOpacity onPress={onClose}>
               <X color="#c1c1c1" size={24} />
@@ -116,9 +122,15 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
           </View>
 
           <View className="mb-4">
-            <Text className="mb-1" style={{ color: '#fff' }}>Title</Text>
+            <Text className="mb-1" style={{ color: "#fff" }}>
+              Title
+            </Text>
             <TextInput
-              style={{ backgroundColor: '#000', color: '#fff', borderRadius: 8 }}
+              style={{
+                backgroundColor: "#000",
+                color: "#fff",
+                borderRadius: 8,
+              }}
               className="p-3 mt-1 mb-1"
               value={title}
               onChangeText={setTitle}
@@ -128,9 +140,15 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
           </View>
 
           <View className="mb-4">
-            <Text className="mb-1" style={{ color: '#fff' }}>Description (optional)</Text>
+            <Text className="mb-1" style={{ color: "#fff" }}>
+              Description (optional)
+            </Text>
             <TextInput
-              style={{ backgroundColor: '#000', color: '#fff', borderRadius: 8 }}
+              style={{
+                backgroundColor: "#000",
+                color: "#fff",
+                borderRadius: 8,
+              }}
               className="p-3 mt-1 mb-1"
               value={description}
               onChangeText={setDescription}
@@ -141,22 +159,27 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
           </View>
 
           <View className="mb-4">
-            <Text className="mb-1" style={{ color: '#fff' }}>Due Date (optional)</Text>
+            <Text className="mb-1" style={{ color: "#fff" }}>
+              Due Date (optional)
+            </Text>
             <TouchableOpacity
-              style={{ backgroundColor: '#000', borderRadius: 8}}
+              style={{ backgroundColor: "#000", borderRadius: 8 }}
               className="flex-row items-center p-3 mt-1"
               onPress={() => setShowDatePicker(true)}
             >
               <Calendar color="#c1c1c1" size={20} className="mr-2" />
-              <Text style={{ color: dueDate ? '#fff' : '#888' }} className="flex-1">
-                {dueDate ? dueDate.toLocaleDateString() : '  Select due date'}
+              <Text
+                style={{ color: dueDate ? "#fff" : "#888" }}
+                className="flex-1"
+              >
+                {dueDate ? dueDate.toLocaleDateString() : "  Select due date"}
               </Text>
             </TouchableOpacity>
             {showDatePicker && (
               <DateTimePicker
                 value={dueDate || new Date()}
                 mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                display={Platform.OS === "ios" ? "spinner" : "default"}
                 minimumDate={new Date()}
                 onChange={(_, date) => {
                   setShowDatePicker(false);
@@ -167,7 +190,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
           </View>
 
           <TouchableOpacity
-            style={{ backgroundColor: '#fff', borderRadius: 8 }}
+            style={{ backgroundColor: "#fff", borderRadius: 8 }}
             className="p-4 items-center mt-4"
             onPress={handleSave}
             disabled={saving}
@@ -175,8 +198,8 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
             {saving ? (
               <ActivityIndicator color="#000" />
             ) : (
-              <Text style={{ color: '#000', fontWeight: 'bold' }}>
-                {task ? 'Update' : 'Save'}
+              <Text style={{ color: "#000", fontWeight: "bold" }}>
+                {task ? "Update" : "Save"}
               </Text>
             )}
           </TouchableOpacity>

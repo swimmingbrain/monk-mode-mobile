@@ -205,7 +205,7 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
         >
           <View className="flex-row justify-between items-center mb-5">
             <Text className="text-xl font-bold" style={{ color: "#fff" }}>
-              {timeBlock ? "Update Activity" : "New Activity"}
+              {timeBlock ? "Update Activity" : "Add Activity"}
             </Text>
             <TouchableOpacity onPress={onClose}>
               <X color="#c1c1c1" size={24} />

@@ -1,13 +1,32 @@
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { getDailyStatistics } from "@/services/statistics";
-import { format, subDays, addDays, startOfWeek, endOfWeek, isSameDay, isToday } from "date-fns";
+import {
+  format,
+  subDays,
+  addDays,
+  startOfWeek,
+  endOfWeek,
+  isSameDay,
+  isToday,
+} from "date-fns";
 import { de } from "date-fns/locale";
 import Header from "@/components/Header";
-import { BarChart, ChevronLeft, ChevronRight } from "lucide-react-native";
+import {
+  BarChart,
+  ChevronLeft,
+  ChevronRight,
+  MoveLeft,
+} from "lucide-react-native";
 
 interface DailyStatistics {
   id: number;
@@ -28,7 +47,7 @@ const Statistics = () => {
   const fetchStatistics = async () => {
     try {
       const data = await getDailyStatistics();
-      console.log('Raw statistics data:', data);
+      console.log("Raw statistics data:", data);
       setStatistics(data);
     } catch (error) {
       console.error("Failed to fetch statistics:", error);
@@ -43,11 +62,9 @@ const Statistics = () => {
     return `${hours}h ${minutes}m`;
   };
 
-  const navigateWeek = (direction: 'prev' | 'next') => {
-    setSelectedDate(prev => 
-      direction === 'prev' 
-        ? subDays(prev, 7)
-        : addDays(prev, 7)
+  const navigateWeek = (direction: "prev" | "next") => {
+    setSelectedDate((prev) =>
+      direction === "prev" ? subDays(prev, 7) : addDays(prev, 7)
     );
   };
 
@@ -59,17 +76,21 @@ const Statistics = () => {
     });
 
     const dataMap = new Map(
-      statistics.map(stat => [
+      statistics.map((stat) => [
         format(new Date(stat.date), "yyyy-MM-dd"),
-        stat.totalFocusTime
+        stat.totalFocusTime,
       ])
     );
 
     return {
-      labels: last7Days.map(date => format(new Date(date), "dd.MM", { locale: de })),
-      datasets: [{
-        data: last7Days.map(date => (dataMap.get(date) || 0) / 60) // Convert to minutes
-      }]
+      labels: last7Days.map((date) =>
+        format(new Date(date), "dd.MM", { locale: de })
+      ),
+      datasets: [
+        {
+          data: last7Days.map((date) => (dataMap.get(date) || 0) / 60), // Convert to minutes
+        },
+      ],
     };
   };
 
@@ -77,8 +98,10 @@ const Statistics = () => {
 
   // Calculate total focus time for today (always current day)
   const getTodayFocusTime = () => {
-    const todayStats = statistics.filter(stat => isToday(new Date(stat.date)));
-    console.log('Today stats:', todayStats);
+    const todayStats = statistics.filter((stat) =>
+      isToday(new Date(stat.date))
+    );
+    console.log("Today stats:", todayStats);
     return todayStats.reduce((sum, stat) => sum + stat.totalFocusTime, 0);
   };
 
@@ -86,12 +109,12 @@ const Statistics = () => {
   const getCurrentWeekFocusTime = () => {
     const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
     const weekEnd = endOfWeek(new Date(), { weekStartsOn: 1 });
-    
-    const weekStats = statistics.filter(stat => {
+
+    const weekStats = statistics.filter((stat) => {
       const statDate = new Date(stat.date);
       return statDate >= weekStart && statDate <= weekEnd;
     });
-    console.log('Current week stats:', weekStats);
+    console.log("Current week stats:", weekStats);
     return weekStats.reduce((sum, stat) => sum + stat.totalFocusTime, 0);
   };
 
@@ -99,12 +122,12 @@ const Statistics = () => {
   const getSelectedWeekFocusTime = () => {
     const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
     const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
-    
-    const weekStats = statistics.filter(stat => {
+
+    const weekStats = statistics.filter((stat) => {
       const statDate = new Date(stat.date);
       return statDate >= weekStart && statDate <= weekEnd;
     });
-    console.log('Selected week stats:', weekStats);
+    console.log("Selected week stats:", weekStats);
     return weekStats.reduce((sum, stat) => sum + stat.totalFocusTime, 0);
   };
 
@@ -112,14 +135,17 @@ const Statistics = () => {
   const getLongestFocusSession = () => {
     const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
     const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
-    
-    const weekStats = statistics.filter(stat => {
+
+    const weekStats = statistics.filter((stat) => {
       const statDate = new Date(stat.date);
       return statDate >= weekStart && statDate <= weekEnd;
     });
-    
-    const maxTime = Math.max(...weekStats.map(stat => stat.totalFocusTime), 0);
-    console.log('Longest session in selected week:', maxTime);
+
+    const maxTime = Math.max(
+      ...weekStats.map((stat) => stat.totalFocusTime),
+      0
+    );
+    console.log("Longest session in selected week:", maxTime);
     return maxTime;
   };
 
@@ -127,17 +153,21 @@ const Statistics = () => {
   const getDaysWithFocus = () => {
     const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
     const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
-    
+
     const daysWithFocus = new Set(
       statistics
-        .filter(stat => {
+        .filter((stat) => {
           const statDate = new Date(stat.date);
-          return statDate >= weekStart && statDate <= weekEnd && stat.totalFocusTime > 0;
+          return (
+            statDate >= weekStart &&
+            statDate <= weekEnd &&
+            stat.totalFocusTime > 0
+          );
         })
-        .map(stat => format(new Date(stat.date), "yyyy-MM-dd"))
+        .map((stat) => format(new Date(stat.date), "yyyy-MM-dd"))
     );
-    
-    console.log('Days with focus in selected week:', Array.from(daysWithFocus));
+
+    console.log("Days with focus in selected week:", Array.from(daysWithFocus));
     return daysWithFocus.size;
   };
 
@@ -153,21 +183,27 @@ const Statistics = () => {
     <SafeAreaView className="bg-black h-full py-8">
       <ScrollView>
         <View className="flex gap-10 px-4 py-4">
-          <Header title="Statistiken" icon={BarChart} />
+          <Header title="Statistics" icon={MoveLeft} />
 
           {/* Week Navigation */}
           <View className="flex-row justify-between items-center">
-            <TouchableOpacity 
-              onPress={() => navigateWeek('prev')}
+            <TouchableOpacity
+              onPress={() => navigateWeek("prev")}
               className="p-2"
             >
               <ChevronLeft color="#FFD700" size={24} />
             </TouchableOpacity>
             <Text className="text-secondary">
-              {format(startOfWeek(selectedDate, { weekStartsOn: 1 }), "dd.MM", { locale: de })} - {format(endOfWeek(selectedDate, { weekStartsOn: 1 }), "dd.MM", { locale: de })}
+              {format(startOfWeek(selectedDate, { weekStartsOn: 1 }), "dd.MM", {
+                locale: de,
+              })}{" "}
+              -{" "}
+              {format(endOfWeek(selectedDate, { weekStartsOn: 1 }), "dd.MM", {
+                locale: de,
+              })}
             </Text>
-            <TouchableOpacity 
-              onPress={() => navigateWeek('next')}
+            <TouchableOpacity
+              onPress={() => navigateWeek("next")}
               className="p-2"
             >
               <ChevronRight color="#FFD700" size={24} />
@@ -176,7 +212,7 @@ const Statistics = () => {
 
           {/* Weekly Overview Chart */}
           <View className="bg-secondary/10 p-4 rounded-lg">
-            <Text className="text-secondary text-lg mb-4">Wöchentliche Übersicht</Text>
+            <Text className="text-secondary text-lg mb-4">Weekly Overview</Text>
             <LineChart
               data={chartData}
               width={Dimensions.get("window").width - 48}
@@ -194,15 +230,15 @@ const Statistics = () => {
                 propsForDots: {
                   r: "6",
                   strokeWidth: "2",
-                  stroke: "#FFD700"
+                  stroke: "#FFD700",
                 },
                 formatYLabel: (value) => `${Math.round(Number(value))}m`,
-                count: 5
+                count: 5,
               }}
               bezier
               style={{
                 marginVertical: 8,
-                borderRadius: 16
+                borderRadius: 16,
               }}
               segments={4}
             />
@@ -210,16 +246,18 @@ const Statistics = () => {
 
           {/* Daily Stats */}
           <View className="bg-secondary/10 p-4 rounded-lg">
-            <Text className="text-secondary text-lg mb-4">Tagesstatistik</Text>
+            <Text className="text-secondary text-lg mb-4">
+              Daily Statistics
+            </Text>
             <View className="space-y-4">
               <View className="flex-row justify-between items-center">
-                <Text className="text-secondary">Fokuszeit heute</Text>
+                <Text className="text-secondary">Focustime today</Text>
                 <Text className="text-secondary font-bold">
                   {formatFocusTime(getTodayFocusTime())}
                 </Text>
               </View>
               <View className="flex-row justify-between items-center">
-                <Text className="text-secondary">Fokuszeit diese Woche</Text>
+                <Text className="text-secondary">Focustime this week</Text>
                 <Text className="text-secondary font-bold">
                   {formatFocusTime(getCurrentWeekFocusTime())}
                 </Text>
@@ -229,18 +267,18 @@ const Statistics = () => {
 
           {/* Achievements Section */}
           <View className="bg-secondary/10 p-4 rounded-lg">
-            <Text className="text-secondary text-lg mb-4">Erfolge</Text>
+            <Text className="text-secondary text-lg mb-4">Achievements</Text>
             <View className="space-y-4">
               <View className="flex-row justify-between items-center">
-                <Text className="text-secondary">Längste Fokussession</Text>
+                <Text className="text-secondary">Longest Focus Session</Text>
                 <Text className="text-secondary font-bold">
                   {formatFocusTime(getLongestFocusSession())}
                 </Text>
               </View>
               <View className="flex-row justify-between items-center">
-                <Text className="text-secondary">Tage im Fokus</Text>
+                <Text className="text-secondary">Days in Focus</Text>
                 <Text className="text-secondary font-bold">
-                  {getDaysWithFocus()} Tage
+                  {getDaysWithFocus()} day(s)
                 </Text>
               </View>
             </View>
@@ -251,4 +289,4 @@ const Statistics = () => {
   );
 };
 
-export default Statistics; 
+export default Statistics;

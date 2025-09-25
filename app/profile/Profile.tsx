@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
-import { MoveLeft } from "lucide-react-native";
+import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { removeToken } from "@/services/auth";
 import { getUserProfile } from "@/services/profile";
@@ -30,7 +30,7 @@ const Profile = () => {
     today: 0,
     week: 0,
     allTime: 0,
-    completedTasks: 0
+    completedTasks: 0,
   });
 
   useEffect(() => {
@@ -71,12 +71,12 @@ const Profile = () => {
           const today = stats[0].totalFocusTime;
           const week = stats.reduce((acc, curr) => acc + curr.totalFocusTime, 0);
           const allTime = stats.reduce((acc, curr) => acc + curr.totalFocusTime, 0);
-          
+
           setStatistics({
             today,
             week,
             allTime,
-            completedTasks: 0 // This will be implemented when tasks are completed
+            completedTasks: 0, // placeholder bis Tasks implementiert sind
           });
         }
       } catch (error) {
@@ -108,7 +108,10 @@ const Profile = () => {
     <SafeAreaView className="bg-black h-full py-8">
       <ScrollView>
         <View className="flex gap-10 px-4 py-4">
-          <Header title="Profile" icon={MoveLeft} />
+          <Header
+            title="Profile"
+            icon={<Feather name="arrow-left" size={24} color="#c1c1c1" />}
+          />
 
           {/* Profile Section */}
           <View className="bg-secondary/10 p-4 rounded-lg">
@@ -116,9 +119,7 @@ const Profile = () => {
               <View className="flex-row items-center">
                 <View className="h-20 w-20 rounded-full bg-secondary flex items-center justify-center">
                   <Text className="text-primary text-2xl font-bold">
-                    {user?.username
-                      ? user.username.charAt(0).toUpperCase()
-                      : "U"}
+                    {user?.username ? user.username.charAt(0).toUpperCase() : "U"}
                   </Text>
                 </View>
                 <View className="ml-4">
@@ -149,9 +150,7 @@ const Profile = () => {
             </Text>
             <View className="flex-row flex-wrap justify-between">
               <View className="w-[48%] bg-primary/10 p-4 rounded-lg mb-4">
-                <Text className="text-secondary/70 text-sm">
-                  Today's Focus Time
-                </Text>
+                <Text className="text-secondary/70 text-sm">Today's Focus Time</Text>
                 <Text className="text-secondary text-2xl font-bold">
                   {formatTime(statistics.today)}
                 </Text>
@@ -163,17 +162,13 @@ const Profile = () => {
                 </Text>
               </View>
               <View className="w-[48%] bg-primary/10 p-4 rounded-lg mb-4">
-                <Text className="text-secondary/70 text-sm">
-                  All Time Focus
-                </Text>
+                <Text className="text-secondary/70 text-sm">All Time Focus</Text>
                 <Text className="text-secondary text-2xl font-bold">
                   {formatTime(statistics.allTime)}
                 </Text>
               </View>
               <View className="w-[48%] bg-primary/10 p-4 rounded-lg mb-4">
-                <Text className="text-secondary/70 text-sm">
-                  Completed Tasks
-                </Text>
+                <Text className="text-secondary/70 text-sm">Completed Tasks</Text>
                 <Text className="text-secondary text-2xl font-bold">
                   {statistics.completedTasks}
                 </Text>
@@ -208,10 +203,12 @@ const Profile = () => {
                   <TouchableOpacity
                     key={friend.id}
                     className="w-[48%] bg-secondary/10 p-4 rounded-lg mb-4 mr-[4%]"
-                    onPress={() => router.push({
-                      pathname: `/friend/${friend.friendId}`,
-                      params: { username: friend.friendUsername }
-                    })}
+                    onPress={() =>
+                      router.push({
+                        pathname: `/friend/${friend.friendId}`,
+                        params: { username: friend.friendUsername },
+                      })
+                    }
                   >
                     <View className="flex-row items-center space-x-6">
                       <View className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center">

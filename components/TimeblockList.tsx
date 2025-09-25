@@ -1,12 +1,12 @@
 import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
+import { Feather } from "@expo/vector-icons";
 import {
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  Trash2,
-} from "lucide-react-native";
-import { createTimeBlock, deleteTimeBlock, getTimeBlocks, updateTimeBlock } from "@/services/TimeblockService";
+  createTimeBlock,
+  deleteTimeBlock,
+  getTimeBlocks,
+  updateTimeBlock,
+} from "@/services/TimeblockService";
 import { TimeBlock } from "@/types/types";
 import TimeblockDialog from "./TimeblockDialog";
 
@@ -47,18 +47,16 @@ const TimeblockList = () => {
       setTimeBlocks((prevBlocks) =>
         prevBlocks
           .map((block) =>
-            block.id === editingTimeBlock.id
-              ? { ...block, ...timeblock }
-              : block
+            block.id === editingTimeBlock.id ? { ...block, ...timeblock } : block
           )
-          .sort((a, b) => sortByDateAndTime(a, b))  
+          .sort((a, b) => sortByDateAndTime(a, b))
       );
 
       try {
-          console.log(timeblock)
-          await updateTimeBlock(timeblock);
+        console.log(timeblock);
+        await updateTimeBlock(timeblock);
       } catch (ex) {
-        console.log(ex)
+        console.log(ex);
       }
 
       setEditingTimeBlock(null);
@@ -83,30 +81,23 @@ const TimeblockList = () => {
   };
 
   const confirmDeleteTimeBlock = async (id: string, title: string) => {
-    Alert.alert(
-      "Delete Activity",
-      `Delete "${title}" permanently?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          onPress: () => handleDeleteTimeBlock(id),
-          style: "destructive",
-        },
-      ]
-    );
+    Alert.alert("Delete Activity", `Delete "${title}" permanently?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        onPress: () => handleDeleteTimeBlock(id),
+        style: "destructive",
+      },
+    ]);
   };
 
-  const handleDeleteTimeBlock = async(id: string) => {
-    setTimeBlocks((prevBlocks) =>
-      prevBlocks.filter((block) => block.id !== id)
-    );
+  const handleDeleteTimeBlock = async (id: string) => {
+    setTimeBlocks((prevBlocks) => prevBlocks.filter((block) => block.id !== id));
 
-    try
-    {
+    try {
       await deleteTimeBlock(id);
     } catch (ex) {
-      console.log(ex)
+      console.log(ex);
     }
   };
 
@@ -139,8 +130,8 @@ const TimeblockList = () => {
 
   const getTimeBlocksForSelectedDate = () => {
     const selectedDateString = selectedDate.toISOString().split("T")[0];
-    const filteredBlocks = timeBlocks.filter(
-      (block) => block.date.startsWith(selectedDateString)
+    const filteredBlocks = timeBlocks.filter((block) =>
+      block.date.startsWith(selectedDateString)
     );
     return filteredBlocks.sort((a, b) => {
       const [aStartHour, aStartMin] = a.startTime.split(":").map(Number);
@@ -156,13 +147,13 @@ const TimeblockList = () => {
     <View className="flex gap-4">
       <View className="flex flex-row gap-2 items-center">
         <TouchableOpacity onPress={navigateToPreviousDay}>
-          <ChevronLeft color="#c1c1c1" />
+          <Feather name="chevron-left" color="#c1c1c1" size={24} />
         </TouchableOpacity>
         <Text className="text-xl text-secondary flex-1 text-center">
           {formatSelectedDate()}
         </Text>
         <TouchableOpacity onPress={navigateToNextDay}>
-          <ChevronRight color="#c1c1c1" />
+          <Feather name="chevron-right" color="#c1c1c1" size={24} />
         </TouchableOpacity>
       </View>
 
@@ -204,7 +195,7 @@ const TimeblockList = () => {
                 }
                 className="p-2"
               >
-                <Trash2 color="#c1c1c1" size={20} />
+                <Feather name="trash-2" color="#c1c1c1" size={20} />
               </TouchableOpacity>
             </View>
           ))}
@@ -218,7 +209,7 @@ const TimeblockList = () => {
           setDialogVisible(true);
         }}
       >
-        <Plus color="#c1c1c1" size={20} />
+        <Feather name="plus" color="#c1c1c1" size={20} />
         <Text className="text-secondary">Add Activity</Text>
       </TouchableOpacity>
 

@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
-import { MoveRight } from "lucide-react-native";
+import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { getDailyStatistics } from "@/services/statistics";
 
@@ -46,7 +46,7 @@ const CurrentFocusTime = () => {
           onPress={() => router.push("/statistics/Statistics")}
         >
           <Text className="text-secondary">all Statistics</Text>
-          <MoveRight color="#c1c1c1" size={20} />
+          <Feather name="arrow-right" color="#c1c1c1" size={20} />
         </TouchableOpacity>
       </View>
       <View className="flex flex-row gap-4">

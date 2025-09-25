@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
-import { MoveLeft } from "lucide-react-native";
 import {
   getFriends,
   getFriendRequests,
@@ -84,10 +83,7 @@ const Friends = () => {
               loadFriendRequests();
             },
           },
-          {
-            text: "Later",
-            style: "cancel",
-          },
+          { text: "Later", style: "cancel" },
         ]
       );
     });
@@ -104,10 +100,7 @@ const Friends = () => {
               loadFriends();
             },
           },
-          {
-            text: "OK",
-            style: "cancel",
-          },
+          { text: "OK", style: "cancel" },
         ]
       );
     });
@@ -156,10 +149,7 @@ const Friends = () => {
       "Remove Friend",
       "Are you sure you want to remove this friend?",
       [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
+        { text: "Cancel", style: "cancel" },
         {
           text: "Remove",
           style: "destructive",
@@ -189,7 +179,7 @@ const Friends = () => {
     <SafeAreaView className="bg-black h-full py-8">
       <ScrollView>
         <View className="flex gap-10 px-4 py-4">
-          <Header title="Friends" icon={MoveLeft} />
+          <Header title="Friends" iconName="arrow-left" />
 
           {/* Tabs */}
           <View className="flex-row bg-secondary/10 rounded-lg p-1">

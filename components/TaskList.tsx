@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
-import { Plus, CheckCircle, Circle, Trash2 } from "lucide-react-native";
+import { Feather } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import { getAllTasks, deleteTask, updateTask } from "@/services/TaskService";
 import { Task } from "@/types/types";
@@ -75,9 +75,7 @@ const TaskList = () => {
 
   const handleSaveTask = (task: Task) => {
     if (editingTask) {
-      setTasks((prev) =>
-        prev.map((t) => (t.id === task.id ? task : t))
-      );
+      setTasks((prev) => prev.map((t) => (t.id === task.id ? task : t)));
     } else {
       setTasks((prev) => [...prev, task]);
     }
@@ -89,10 +87,9 @@ const TaskList = () => {
     return <ActivityIndicator size="large" color="#fff" />;
   }
 
-  // Helper to format ISO date string as DD.MM.YYYY
   const formatDate = (iso: string) => {
-    const datePart = iso.split('T')[0];
-    const [year, month, day] = datePart.split('-');
+    const datePart = iso.split("T")[0];
+    const [year, month, day] = datePart.split("-");
     return `${day}.${month}.${year}`;
   };
 
@@ -139,7 +136,7 @@ const TaskList = () => {
           }}
           className="flex flex-row items-center justify-end mb-2"
         >
-          <Plus color="#c1c1c1" size={20} />
+          <Feather name="plus" color="#c1c1c1" size={20} />
           <Text className="text-secondary"> Add Task</Text>
         </TouchableOpacity>
       )}
@@ -155,11 +152,8 @@ const TaskList = () => {
               className="flex flex-row items-center justify-between bg-primary rounded-lg py-4 px-5 mb-2"
             >
               {/* Checkbox */}
-              <TouchableOpacity
-                onPress={() => handleToggle(task)}
-                className="mr-4"
-              >
-                <Circle size={24} color="#c1c1c1" />
+              <TouchableOpacity onPress={() => handleToggle(task)} className="mr-4">
+                <Feather name="circle" size={24} color="#c1c1c1" />
               </TouchableOpacity>
 
               {/* Title/Details: opens edit dialog on press */}
@@ -180,7 +174,7 @@ const TaskList = () => {
 
               {/* Delete */}
               <TouchableOpacity onPress={() => handleDelete(task.id)}>
-                <Trash2 color="#c1c1c1" size={20} />
+                <Feather name="trash-2" color="#c1c1c1" size={20} />
               </TouchableOpacity>
             </View>
           ))
@@ -194,11 +188,8 @@ const TaskList = () => {
             className="flex flex-row items-center justify-between bg-primary rounded-lg py-4 px-5 mb-2"
           >
             {/* Completed checkbox */}
-            <TouchableOpacity
-              onPress={() => handleToggle(task)}
-              className="mr-4"
-            >
-              <CheckCircle size={24} color="#4caf50" />
+            <TouchableOpacity onPress={() => handleToggle(task)} className="mr-4">
+              <Feather name="check-circle" size={24} color="#4caf50" />
             </TouchableOpacity>
 
             {/* Title/Details: VIEW ONLY in completed */}
@@ -213,14 +204,11 @@ const TaskList = () => {
 
             {/* Undo & Delete */}
             <View className="flex flex-row">
-              <TouchableOpacity
-                onPress={() => handleToggle(task)}
-                className="mr-4"
-              >
+              <TouchableOpacity onPress={() => handleToggle(task)} className="mr-4">
                 <Text className="text-blue-400">Undo</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => handleDelete(task.id)}>
-                <Trash2 color="#c1c1c1" size={20} />
+                <Feather name="trash-2" color="#c1c1c1" size={20} />
               </TouchableOpacity>
             </View>
           </View>

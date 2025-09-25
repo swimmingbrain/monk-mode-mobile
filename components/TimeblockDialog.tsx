@@ -7,9 +7,8 @@ import {
   TextInput,
   Platform,
   Alert,
-  Switch,
 } from "react-native";
-import { X, Calendar, Clock } from "lucide-react-native";
+import { Feather } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { TimeBlock } from "@/types/types";
 
@@ -32,17 +31,14 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
   const [endTime, setEndTime] = useState("");
   const [isFocus, setIsFocus] = useState(true);
 
-  // Date picker state
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  // Time picker states
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
   const [selectedStartTime, setSelectedStartTime] = useState(new Date());
   const [selectedEndTime, setSelectedEndTime] = useState(new Date());
 
-  // Load time block data when editing
   useEffect(() => {
     if (timeBlock) {
       setTitle(timeBlock.title);
@@ -51,11 +47,9 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
       setEndTime(timeBlock.endTime);
       setIsFocus(timeBlock.isFocus);
 
-      // Set date picker
       const dateObj = new Date(timeBlock.date);
       setSelectedDate(dateObj);
 
-      // Set time pickers
       const [startHours, startMinutes] = timeBlock.startTime
         .split(":")
         .map(Number);
@@ -68,7 +62,6 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
       endDate.setHours(endHours, endMinutes);
       setSelectedEndTime(endDate);
     } else {
-      // Reset form when creating new
       setTitle("");
       setDate("");
       setStartTime("");
@@ -98,7 +91,6 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
       return false;
     }
 
-    // Check if end time is after start time
     const startParts = startTime.split(":");
     const endParts = endTime.split(":");
 
@@ -108,16 +100,13 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
     const endDate = new Date();
     endDate.setHours(parseInt(endParts[0]), parseInt(endParts[1]));
 
-    // If end time is less than start time, assume it's on the next day
     if (endDate <= startDate) {
       endDate.setDate(endDate.getDate() + 1);
     }
 
-    // Calculate the duration in hours
     const durationHours =
       (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
 
-    // Check if the duration is reasonable (e.g. not more than 24 hours)
     if (durationHours > 24) {
       Alert.alert("Error", "Activity cannot last longer than 24 hours.");
       return false;
@@ -129,7 +118,6 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
   const handleSave = () => {
     if (!validateForm()) return;
 
-    // If end time is on the next day, add a note to the title
     const startParts = startTime.split(":");
     const endParts = endTime.split(":");
 
@@ -155,7 +143,7 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
     };
 
     onSave(timeBlockToSave);
-    // Reset form
+
     setTitle("");
     setDate("");
     setStartTime("");
@@ -167,7 +155,6 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
     setShowDatePicker(false);
     if (selectedDate) {
       setSelectedDate(selectedDate);
-      // Format date as YYYY-MM-DD
       const formattedDate = selectedDate.toISOString().split("T")[0];
       setDate(formattedDate);
     }
@@ -177,7 +164,6 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
     setShowStartTimePicker(false);
     if (selectedTime) {
       setSelectedStartTime(selectedTime);
-      // Format time as HH:MM:SS
       const hours = selectedTime.getHours().toString().padStart(2, "0");
       const minutes = selectedTime.getMinutes().toString().padStart(2, "0");
       const seconds = selectedTime.getSeconds().toString().padStart(2, "0");
@@ -208,7 +194,7 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
               {timeBlock ? "Update Activity" : "Add Activity"}
             </Text>
             <TouchableOpacity onPress={onClose}>
-              <X color="#c1c1c1" size={24} />
+              <Feather name="x" color="#c1c1c1" size={24} />
             </TouchableOpacity>
           </View>
 
@@ -239,7 +225,7 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
               className="flex-row items-center p-3 mt-1 gap-2"
               onPress={() => setShowDatePicker(true)}
             >
-              <Calendar color="#c1c1c1" size={20} className="mr-2" />
+              <Feather name="calendar" color="#c1c1c1" size={20} />
               <Text
                 style={{ color: date ? "#fff" : "#888" }}
                 className="flex-1"
@@ -267,7 +253,7 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
                 className="flex-row items-center p-3 mt-1 gap-2"
                 onPress={() => setShowStartTimePicker(true)}
               >
-                <Clock color="#c1c1c1" size={20} className="mr-2" />
+                <Feather name="clock" color="#c1c1c1" size={20} />
                 <Text
                   style={{ color: startTime ? "#fff" : "#888" }}
                   className="flex-1"
@@ -294,7 +280,7 @@ const TimeblockDialog: React.FC<TimeblockDialogProps> = ({
                 className="flex-row items-center p-3 mt-1 gap-2"
                 onPress={() => setShowEndTimePicker(true)}
               >
-                <Clock color="#c1c1c1" size={20} className="mr-2" />
+                <Feather name="clock" color="#c1c1c1" size={20} />
                 <Text
                   style={{ color: endTime ? "#fff" : "#888" }}
                   className="flex-1"

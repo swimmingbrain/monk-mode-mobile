@@ -1,39 +1,49 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import { Stack, useRouter, Slot } from "expo-router";
+import "./globals.css";
+import { useEffect, useState } from "react";
+import { getToken } from "@/services/auth";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+    const checkAuth = async () => {
+      try {
+        const token = await getToken();
+        if (!token) {
+          router.replace("/(auth)/login");
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+        router.replace("/(auth)/login");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  if (!loaded) {
-    return null;
+    checkAuth();
+  }, []);
+
+  if (isLoading) {
+    return <Slot />;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack>
+      <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
+      <Stack.Screen name="(auth)/register" options={{ headerShown: false }} />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="focusmode/FocusMode"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen name="friends/Friends" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/Profile" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="statistics/Statistics"
+        options={{ headerShown: false }}
+      />
+    </Stack>
   );
 }

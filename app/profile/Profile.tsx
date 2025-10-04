@@ -92,7 +92,7 @@ const Profile = () => {
   const handleLogout = async () => {
     try {
       await removeToken();
-      router.replace("/(auth)/login");
+      router.replace("/login");
     } catch (error) {
       console.error("Logout error:", error);
     }

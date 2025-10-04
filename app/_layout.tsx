@@ -1,32 +1,37 @@
-import { Stack, useRouter, Slot } from "expo-router";
+import { Stack, useRouter, Slot, usePathname } from "expo-router";
 import "./globals.css";
 import { useEffect, useState } from "react";
 import { getToken } from "@/services/auth";
 
 export default function RootLayout() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const token = await getToken();
-        if (!token) {
-          router.replace("/(auth)/login");
+        const isAuthRoute = pathname === "/login" || pathname === "/register";
+        if (!token && !isAuthRoute) {
+          router.replace("/login");
         }
       } catch (error) {
         console.error("Auth check error:", error);
-        router.replace("/(auth)/login");
+        const isAuthRoute = pathname === "/login" || pathname === "/register";
+        if (!isAuthRoute) {
+          router.replace("/login");
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     checkAuth();
-  }, []);
+  }, [pathname]);
 
   if (isLoading) {
-    return <Slot />;
+    return null;
   }
 
   return (
